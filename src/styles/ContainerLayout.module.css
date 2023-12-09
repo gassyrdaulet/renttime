@@ -1,0 +1,53 @@
+.Wrapper {
+  width: 100%;
+  margin-bottom: 100px;
+}
+.ContainerLayout {
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  max-width: 1200px;
+}
+.LeftContainerWrapper {
+  width: 25%;
+  padding: 0 15px 0 10px;
+}
+.MainContainerWrapper {
+  width: 75%;
+  padding: 0 10px 0 0;
+}
+.SearchWrapper {
+  padding: 10px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: center;
+  height: 65px;
+}
+.SearchWrapperDesktop {
+  display: flex;
+}
+.SearchWrapperMobile {
+  display: none;
+}
+@media only screen and (max-width: 800px) {
+  .ContainerLayout {
+    flex-direction: column;
+  }
+  .LeftContainerWrapper {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 0 10px;
+    margin-top: 20px;
+  }
+  .MainContainerWrapper {
+    width: 100%;
+    padding: 0 10px;
+  }
+  .SearchWrapperMobile {
+    display: flex;
+  }
+  .SearchWrapperDesktop {
+    display: none;
+  }
+}

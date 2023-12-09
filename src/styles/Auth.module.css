@@ -1,0 +1,41 @@
+.AuthWrapper {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  padding-top: 10vh;
+}
+.Auth {
+  max-width: 500px;
+  margin: 0 auto;
+  width: 90vw;
+  user-select: none;
+}
+.AuthTitle {
+  text-align: center;
+  font-size: 25px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+.LoginForm {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+.GoogleText {
+  font-family: "Libre Baskerville", "sans-serif";
+  font-weight: 700;
+}
+.GoBack {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+.GoBack p {
+  font-size: 12px;
+}
+.IconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

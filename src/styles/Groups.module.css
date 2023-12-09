@@ -1,0 +1,50 @@
+.GroupsWrapper {
+  display: flex;
+  flex-direction: column;
+  overflow-x: auto;
+  max-height: 90vh;
+}
+.ActiveGroup {
+  background-color: #e7e7e7;
+}
+.GroupName {
+  user-select: none;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 10px;
+  height: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  border-bottom: 1px solid rgb(187, 187, 187);
+  align-items: center;
+  font-size: 12px;
+  color: rgb(41, 116, 208);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.GroupName p:hover {
+  text-decoration: underline;
+  color: rgb(37, 88, 150);
+}
+.GroupsMobile {
+  display: none;
+}
+.EditForm {
+  width: 80vw;
+  max-width: 500px;
+}
+.EditFormButtons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media only screen and (max-width: 800px) {
+  .GroupsMobile {
+    display: block;
+  }
+  .GroupsDesktop {
+    display: none;
+  }
+}

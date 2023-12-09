@@ -1,0 +1,94 @@
+.HeaderContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background-color: #e7e7e7;
+}
+.MainWrapper {
+  width: 100%;
+  max-width: 1200px;
+  overflow-x: auto;
+  transform: rotateX(180deg);
+}
+.SecondaryWrapper {
+  transform: rotateX(180deg);
+  padding: 10px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  user-select: none;
+}
+.Button {
+  width: 80px;
+  min-width: 80px;
+  max-width: 80px;
+  height: 55px;
+  min-height: 55px;
+  max-height: 55px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin: 0 5px;
+  transition: 0.14s ease;
+}
+.Button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.25);
+}
+.Button svg {
+  width: 37px;
+  height: 37px;
+}
+.Button p {
+  font-size: 12px;
+  font-weight: 600;
+  overflow: hidden;
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.ButtonLoading {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgb(47, 47, 47);
+}
+.ButtonSelected {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.25);
+}
+.ButtonName {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ButtonName svg {
+  width: 10px;
+  height: 10px;
+}
+
+@media only screen and (max-width: 1000px) {
+  .Button {
+    width: 70px;
+    min-width: 70px;
+    max-width: 70px;
+  }
+  .Button p {
+    font-size: 10px;
+  }
+  .Button:hover {
+    transform: scale(1);
+    box-shadow: none;
+  }
+  .ButtonSelected:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.25);
+  }
+}

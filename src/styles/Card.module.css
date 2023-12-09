@@ -1,0 +1,85 @@
+.MainContent {
+  min-height: 80vh;
+}
+.GoBack {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  cursor: pointer;
+  user-select: none;
+}
+.GoBack p {
+  font-size: 12px;
+}
+.IconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.GoodDataWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+.ImageWrapper {
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 15px;
+}
+.GoodDataContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 300px;
+  margin: 20px 0;
+}
+.GoodData {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  row-gap: 15px;
+  column-gap: 5px;
+  justify-items: center;
+  width: 100%;
+  user-select: none;
+}
+.GoodDataGoodName {
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+.GoodDataItem {
+  width: 80%;
+}
+.GoodDataItemTitle {
+  font-size: 8px;
+  color: #a9a9a9;
+  max-height: 20px;
+  overflow: hidden;
+}
+.GoodDataItemText {
+  font-size: 15px;
+  max-height: 38px;
+  overflow: hidden;
+}
+.Species {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  justify-items: center;
+  row-gap: 15px;
+}
+@media screen and (max-width: 900px) {
+  .Species {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 10px;
+    column-gap: 10px;
+  }
+}
+@media screen and (max-width: 390px) {
+  .Species {
+    grid-template-columns: repeat(1, 1fr);
+    row-gap: 10px;
+  }
+}

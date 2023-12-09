@@ -1,0 +1,40 @@
+.MainContent {
+  display: flex;
+  flex-direction: column;
+  min-height: 80vh;
+}
+.Goods {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, 160px);
+  justify-content: space-between;
+  row-gap: 30px;
+  column-gap: 10px;
+}
+.SortFilterPanel {
+  margin-bottom: 20px;
+}
+.Sorts {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(212, 212, 212);
+  padding-bottom: 5px;
+  margin-bottom: 15px;
+}
+.Sorts p {
+  font-size: 10px;
+  user-select: none;
+  color: rgb(44, 44, 44);
+}
+@media screen and (max-width: 1024px) {
+  .Goods {
+    grid-template-columns: repeat(3, 160px);
+  }
+}
+@media screen and (max-width: 600px) {
+  .Goods {
+    grid-template-columns: repeat(2, 138px);
+    row-gap: 15px;
+  }
+}
