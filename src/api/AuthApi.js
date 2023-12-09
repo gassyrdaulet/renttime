@@ -10,6 +10,8 @@ import {
 } from "firebase/auth";
 import { toast } from "react-toastify";
 
+// ("scp -r ./build/* /var/www/renttime.kz/html");
+
 export const registration = async (
   data,
   setRegistrationLoading,
