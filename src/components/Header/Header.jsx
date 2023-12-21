@@ -21,6 +21,7 @@ import MyButton from "../MyButton";
 import DropMenus from "./DropMenus";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
+import { BiCar } from "react-icons/bi";
 
 function Header() {
   const { setIsAuth, setToken } = useAuth();
@@ -54,23 +55,25 @@ function Header() {
         name: "ЗАЯВКИ",
         icon: <FaClipboardList />,
         id: 1,
-        onClick: () => navigate("/orders"),
+        onClick: () => navigate("/orders/0/1"),
         path: "/orders",
       },
       {
-        name: "КАРТОЧКИ",
+        name: "ТОВАРЫ",
         icon: <FaShoppingCart />,
         id: 2,
-        onClick: () => navigate("/cards"),
+        onClick: () => navigate("/cards/-2/1"),
         path: "/cards",
       },
       {
-        name: "РАСХОДНИКИ",
-        icon: <FaCog />,
+        name: "ДОСТАВКИ",
+        icon: <BiCar />,
         id: 3,
+        onClick: () => navigate("/deliveries/new/1"),
+        path: "/deliveries",
       },
       {
-        name: "КАССА",
+        name: "СМЕНЫ",
         icon: <FaCashRegister />,
         id: 4,
       },
@@ -112,6 +115,8 @@ function Header() {
         name: "НАСТРОЙКИ",
         icon: <FaTools />,
         id: 7,
+        onClick: () => navigate("/settings/organization"),
+        path: "/settings",
       },
       {
         isLoading: logoutLoading,

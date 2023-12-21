@@ -1,16 +1,17 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import MyInput from "./MyInput";
 import MyButton from "./MyButton";
 import styled from "styled-components";
-import Select from "./Select";
-import { createNewSpecie } from "../api/GoodsApi";
 import useAuth from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
+import Switch from "./Switch";
+import { newExtension } from "../api/OrderApi";
+import moment from "moment";
+import DatePicker from "./DatePicker";
 import config from "../config/config.json";
 
-const { SPECIE_STATUSES } = config;
+const { TARIFF_UNITS_2 } = config;
 
-const CreateSpecieFormWrapper = styled.form`
+const CreateExtensionFormWrapper = styled.form`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -20,13 +21,13 @@ const CreateSpecieFormWrapper = styled.form`
   height: 70vh;
   max-height: 70vh;
 `;
-const CreateSpecieFormContainer = styled.div`
+const CreateExtensionFormContainer = styled.div`
   display: flex;
   align-items: flex-start;
   overflow-y: auto;
   width: 100%;
 `;
-const CreateSpecieInputContainers = styled.div`
+const CreateExtensionInputContainers = styled.div`
   display: flex;
   width: 100%;
   @media (max-width: 800px) {
@@ -40,7 +41,7 @@ const InputsContainer = styled.div`
   padding: 0 5px;
   width: 100%;
   @media (max-width: 800px) {
-    max-width: 250px;
+    max-width: 300px;
   }
 `;
 const ButtonsContainer = styled.div`
@@ -52,33 +53,27 @@ const ButtonsContainer = styled.div`
   border-top: 1px solid #c3c3c3;
 `;
 
-function CreateSpecieForm({
-  createSpecieLoading,
-  setCreateSpecieLoading,
-  good_id,
+function CreateExtensionForm({
+  createExtensionLoading,
+  setCreateExtensionLoading,
+  orderId,
+  next,
+  tariff,
 }) {
   const [inputs, setInputs] = useState([
     {
       id: 0,
-      title: "Инвентарьный номер",
-      value: "0000000000",
-      name: "code",
+      title: `Срок (${TARIFF_UNITS_2[tariff]})`,
+      value: "0",
+      name: "renttime",
       inputMode: "numeric",
       integer: true,
       unsigned: true,
-      zerofill: true,
     },
   ]);
   const { token } = useAuth();
-  const navigate = useNavigate();
-  const [status, setStatus] = useState("available");
-
-  const options = useMemo(() => {
-    return Object.keys(SPECIE_STATUSES).map((key) => ({
-      id: key,
-      name: SPECIE_STATUSES[key],
-    }));
-  }, []);
+  const [date, setDate] = useState(moment());
+  const [ownDate, setOwnDate] = useState(false);
 
   const handleInputChange = useCallback((id, value) => {
     setInputs((prev) => {
@@ -94,9 +89,9 @@ function CreateSpecieForm({
   }, []);
 
   return (
-    <CreateSpecieFormWrapper>
-      <CreateSpecieFormContainer>
-        <CreateSpecieInputContainers>
+    <CreateExtensionFormWrapper>
+      <CreateExtensionFormContainer>
+        <CreateExtensionInputContainers>
           <InputsContainer>
             {inputs.map((item) => (
               <MyInput
@@ -106,54 +101,52 @@ function CreateSpecieForm({
                 label={item.title}
                 key={item.id}
                 value={item.value}
-                disabled={createSpecieLoading}
+                disabled={createExtensionLoading}
                 inputMode={item.inputMode}
                 integer={item.integer}
                 unsigned={item.unsigned}
                 zerofill={item.zerofill}
               />
             ))}
-            <Select
-              disabled={true}
-              label="Статус"
-              value={status}
-              setValue={setStatus}
-              loading={createSpecieLoading}
-              defaultOptions={[]}
-              options={options}
+            <Switch
+              disabled={createExtensionLoading}
+              label="Своя дата"
+              isChecked={ownDate}
+              setChecked={setOwnDate}
             />
+            {ownDate && (
+              <DatePicker
+                disabled={createExtensionLoading}
+                label="Дата продления"
+                selectedDate={date}
+                handleDateChange={setDate}
+                timeFormat="HH:mm"
+              />
+            )}
           </InputsContainer>
-        </CreateSpecieInputContainers>
-      </CreateSpecieFormContainer>
+        </CreateExtensionInputContainers>
+      </CreateExtensionFormContainer>
       <ButtonsContainer>
         <MyButton
           type="submit"
-          loading={createSpecieLoading.toString()}
-          disabled={createSpecieLoading}
-          text="Сохранить"
+          loading={createExtensionLoading.toString()}
+          disabled={createExtensionLoading}
+          text="Добавить"
           onClick={(e) => {
             e.preventDefault();
-            const specieData = {};
+            const data = {};
             inputs.forEach((item) => {
-              specieData[item.name] = item.value;
+              data[item.name] = item.value;
             });
-            createNewSpecie(
-              setCreateSpecieLoading,
-              token,
-              {
-                ...specieData,
-                status,
-                good_id,
-              },
-              () => {
-                navigate(0);
-              }
-            );
+            if (ownDate) {
+              data.date = moment(date).toDate();
+            }
+            newExtension(setCreateExtensionLoading, token, orderId, data, next);
           }}
         />
       </ButtonsContainer>
-    </CreateSpecieFormWrapper>
+    </CreateExtensionFormWrapper>
   );
 }
 
-export default CreateSpecieForm;
+export default CreateExtensionForm;

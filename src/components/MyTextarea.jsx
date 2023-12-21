@@ -47,6 +47,7 @@ const RightIcon = styled.div`
 `;
 
 const MyTextarea = ({
+  placeholder,
   label,
   type,
   value,
@@ -64,6 +65,7 @@ const MyTextarea = ({
       <LabelText>{label}</LabelText>
       <InputWrapper>
         <InputField
+          placeholder={placeholder}
           spellCheck={false}
           disabled={disabled}
           type={type}

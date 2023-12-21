@@ -38,6 +38,7 @@ function Select({
   setValue,
   className,
   value,
+  disabled,
   label,
   selectWidth = "100%",
 }) {
@@ -47,6 +48,7 @@ function Select({
       <SelectStyled
         value={value}
         onChange={({ target }) => {
+          if (loading) return;
           setValue(target.value);
         }}
         disabled={loading}
@@ -54,14 +56,22 @@ function Select({
       >
         {defaultOptions.map((item) => {
           return (
-            <option key={item.id} value={item.id}>
+            <option
+              key={item.id}
+              disabled={disabled || loading}
+              value={item.id}
+            >
               {item.name}
             </option>
           );
         })}
         {options.map((option) => {
           return (
-            <option key={option.id} value={option.id}>
+            <option
+              key={option.id}
+              disabled={disabled || loading}
+              value={option.id}
+            >
               {option.name}
             </option>
           );

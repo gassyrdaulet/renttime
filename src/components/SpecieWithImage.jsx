@@ -79,9 +79,11 @@ function SpecieWithImage({
       {
         title: TARIFF_UNITS[tariff],
         id: 1,
-        value: `${itemInfo.good?.[TARIFF_KEYS[tariff]]} ${
-          CURRENCIES[currency]
-        }`,
+        value: `${
+          itemInfo.saved_price
+            ? itemInfo.saved_price
+            : itemInfo.good?.[TARIFF_KEYS[tariff]]
+        } ${CURRENCIES[currency]}`,
       },
       {
         title: "Инв. номер",

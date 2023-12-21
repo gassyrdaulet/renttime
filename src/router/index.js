@@ -8,6 +8,10 @@ import Goods from "../pages/Goods";
 import Card from "../pages/Card";
 import Orders from "../pages/Orders";
 import Contract from "../pages/Contract";
+import OrderDetails from "../pages/OrderDetails";
+import Deliveries from "../pages/Deliveries";
+import DeliveryDetails from "../pages/DeliveryDetails";
+import Settings from "../pages/Settings";
 
 export const userRoutes = [
   { path: "/main", element: <Main></Main> },
@@ -15,9 +19,16 @@ export const userRoutes = [
     path: "/contract/:organization_id/:order_id/:contract_code",
     element: <Contract></Contract>,
   },
-  { path: "/cards", element: <Goods></Goods> },
-  { path: "/cards/:id", element: <Card></Card> },
-  { path: "/orders", element: <Orders></Orders> },
+  { path: "/cards/:group/:page", element: <Goods></Goods> },
+  { path: "/cards/:group/:page/:id", element: <Card></Card> },
+  { path: "/orders/:group/:page", element: <Orders></Orders> },
+  { path: "/orders/:group/:page/:id", element: <OrderDetails></OrderDetails> },
+  { path: "/deliveries/:group/:page", element: <Deliveries></Deliveries> },
+  { path: "/settings/:group", element: <Settings></Settings> },
+  {
+    path: "/deliveries/:group/:page/:id",
+    element: <DeliveryDetails></DeliveryDetails>,
+  },
   { path: "/", element: <Navigate to="/main"></Navigate> },
   { path: "/auth", element: <Navigate to="/"></Navigate> },
   { path: "/*", element: <Navigate to="/"></Navigate> },

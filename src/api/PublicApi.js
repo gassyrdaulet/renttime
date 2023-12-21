@@ -63,7 +63,8 @@ export const confirmCode = async (
   organization_id,
   order_id,
   contract_code,
-  sign_code
+  sign_code,
+  next
 ) => {
   setLoading(true);
   axiosNT
@@ -72,6 +73,7 @@ export const confirmCode = async (
     })
     .then(() => {
       toast.success("Код абсолютно верен!", { draggable: false });
+      next();
     })
     .catch((e) => {
       const errMsg = e?.response?.data?.message;

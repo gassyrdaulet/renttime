@@ -2,7 +2,6 @@ import { useRef, useEffect } from "react";
 import { useOutsideAlerter } from "../hooks/useOutsideAlerter";
 import useAuth from "../hooks/useAuth";
 import cl from "../styles/Modal.module.css";
-import { motion, AnimatePresence } from "framer-motion";
 import styled from "styled-components";
 import { IoMdCloseCircleOutline } from "react-icons/io";
 
@@ -49,13 +48,6 @@ const Modal = ({
     },
     exit: { scaleY: 4, scaleX: 0.05, opacity: 0, scale: 0.8 },
   };
-  const modalWrapperVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-    },
-    exit: { opacity: 0 },
-  };
 
   useEffect(() => {
     if (modalVisible) {
@@ -71,36 +63,24 @@ const Modal = ({
     }
   });
 
-  return (
-    <AnimatePresence>
-      {modalVisible && (
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          variants={modalWrapperVariants}
-          className={cl.modalWrapper}
-        >
-          <motion.div
-            variants={modalVariants}
-            ref={modalRef}
-            className={cl.modal}
+  return modalVisible ? (
+    <div className={cl.modalWrapper}>
+      <div variants={modalVariants} ref={modalRef} className={cl.modal}>
+        <CloseModal>
+          <TitleWrapper>{title}</TitleWrapper>
+          <IconContainer
+            onClick={() => {
+              if (!noEscape) setModalVisible(false);
+            }}
           >
-            <CloseModal>
-              <TitleWrapper>{title}</TitleWrapper>
-              <IconContainer
-                onClick={() => {
-                  if (!noEscape) setModalVisible(false);
-                }}
-              >
-                <IoMdCloseCircleOutline size={22} />
-              </IconContainer>
-            </CloseModal>
-            {children}
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            <IoMdCloseCircleOutline size={22} />
+          </IconContainer>
+        </CloseModal>
+        {children}
+      </div>
+    </div>
+  ) : (
+    ""
   );
 };
 

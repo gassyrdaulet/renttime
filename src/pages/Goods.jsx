@@ -15,7 +15,7 @@ import Loading from "../components/Loading";
 import Pagination from "../components/Pagination";
 import Select from "../components/Select";
 import { BsFilterSquareFill } from "react-icons/bs";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function Goods() {
   const [goodsLoading, setGoodsLoading] = useState(true);
@@ -43,6 +43,7 @@ function Goods() {
   );
   const { token } = useAuth();
   const navigate = useNavigate();
+  const params = useParams();
 
   const credButtons = [
     {
@@ -63,16 +64,19 @@ function Goods() {
     },
   ];
 
-  const controlPanelButtons = [
-    {
-      id: 0,
-      title: "Фильтры и сортировка",
-      icon: <BsFilterSquareFill size={20} />,
-      onClick: () => {
-        setFilterSortModal(true);
+  const controlPanelButtons = useMemo(
+    () => [
+      {
+        id: 0,
+        title: "Фильтры и сортировка",
+        icon: <BsFilterSquareFill size={20} />,
+        onClick: () => {
+          setFilterSortModal(true);
+        },
       },
-    },
-  ];
+    ],
+    []
+  );
 
   const pageSizes = useMemo(
     () => [
@@ -122,12 +126,24 @@ function Goods() {
     setPage(1);
   }, [selectedGroup, confirmedSearchText, pageSize]);
 
+  useEffect(() => {
+    navigate(`/cards/${selectedGroup}/${page}`);
+  }, [page, selectedGroup, navigate]);
+
+  useEffect(() => {
+    setPage(parseInt(params.page));
+    setSelectedGroup(parseInt(params.group));
+  }, [params.page, params.group]);
+
   const leftContent = (
     <div>
       <CredButtons credButtons={credButtons} />
       <Groups
-        goodsLoading={goodsLoading}
-        goodsTotal={totalCount}
+        defaultOptions={[
+          { id: -2, name: `Все карточки (${totalCount})` },
+          { id: -1, name: "Карточки без группы" },
+        ]}
+        switchLoading={goodsLoading}
         setSelectedGroup={setSelectedGroup}
         selectedGroup={selectedGroup}
         groupsLoading={groupsLoading}
@@ -172,7 +188,9 @@ function Goods() {
           {goods.map((item, index) => (
             <GoodItem
               index={index + 1 + pageSize * (page - 1)}
-              onClick={() => navigate("/cards/" + item.id)}
+              onClick={() =>
+                navigate(`/cards/${selectedGroup}/${page}/${item.id}`)
+              }
               key={item.id}
               goodItem={item}
             />

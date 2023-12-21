@@ -26,6 +26,7 @@ function Card() {
   const [searchInputText, setSearchInputText] = useState("");
   const { token } = useAuth();
   const { id } = useParams();
+  const params = useParams();
   const navigate = useNavigate();
   const credButtons = [
     {
@@ -81,7 +82,6 @@ function Card() {
         title: "Стоимость компенсации",
         value: goodData?.compensation_price,
       },
-
       {
         title: "Стоимость за минуту",
         value: goodData?.price_per_minute,
@@ -112,7 +112,10 @@ function Card() {
 
   const leftContent = (
     <div>
-      <div className={cl.GoBack} onClick={() => navigate("/cards")}>
+      <div
+        className={cl.GoBack}
+        onClick={() => navigate(`/cards/${params.group}/${params.page}`)}
+      >
         <div className={cl.IconContainer}>
           <BiSolidChevronLeft size={20} />
         </div>

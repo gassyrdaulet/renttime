@@ -453,6 +453,7 @@ function CreateNewOrder({
               onChange={(e) => setDiscountReason(e.target.value)}
               label="Причина скидки"
               max={150}
+              placeholder="Без причины"
             />
           </SignContractHalf>
         </SignContractWrapper>

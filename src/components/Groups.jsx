@@ -2,7 +2,6 @@ import cl from "../styles/Groups.module.css";
 import Loading from "./Loading";
 import GroupRow from "./GroupRow";
 import Select from "./Select";
-import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Groups({
@@ -10,16 +9,10 @@ function Groups({
   groupsLoading,
   groups,
   selectedGroup,
-  goodsTotal,
-  goodsLoading,
+  switchLoading,
+  defaultOptions,
+  onGroupChange = () => {},
 }) {
-  const defaultOptions = useMemo(
-    () => [
-      { id: -2, name: `Все карточки (${goodsTotal})` },
-      { id: -1, name: "Карточки без группы" },
-    ],
-    [goodsTotal]
-  );
   const navigate = useNavigate();
 
   return (
@@ -33,7 +26,8 @@ function Groups({
             }
             style={{ fontWeight: "bold" }}
             onClick={() => {
-              if (!goodsLoading) setSelectedGroup(item.id);
+              onGroupChange();
+              if (!switchLoading) setSelectedGroup(item.id);
             }}
           >
             {item.name}
@@ -51,7 +45,8 @@ function Groups({
                 key={item.id}
                 navigate={navigate}
                 setGroup={(v) => {
-                  if (!goodsLoading) {
+                  if (!switchLoading) {
+                    onGroupChange();
                     setSelectedGroup(v);
                   }
                 }}
@@ -67,7 +62,10 @@ function Groups({
           value={selectedGroup}
           defaultOptions={defaultOptions}
           loading={groupsLoading}
-          setValue={(v) => setSelectedGroup(parseInt(v))}
+          setValue={(v) => {
+            onGroupChange();
+            setSelectedGroup(v);
+          }}
           options={groups}
         />
       </div>

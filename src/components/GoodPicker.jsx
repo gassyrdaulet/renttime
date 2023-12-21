@@ -362,50 +362,57 @@ function GoodPicker({ tariff, pickedGoods, setPickedGoods, disabled }) {
         ref={speciesWithImagesContainer}
         onScroll={handleScroll}
       >
-        <SpecieWithImageWrapper>
-          <AddGoodButtons>
-            <MyButton
-              onClick={() => {
-                setAddGoodModal(true);
-              }}
-              disabled={loading || addGoodModal || disabled}
-              margin="0"
-              text={
-                <AddGoodButton>
-                  <IconContainer>
-                    <BiPlusCircle size={30} />
-                  </IconContainer>
-                  <AddGoodButtonText>
-                    Добавить товар через модальное окно
-                  </AddGoodButtonText>
-                </AddGoodButton>
-              }
-            />
-            <p>или</p>
-            <MyButton
-              onClick={() => {
-                setAddGoodByCodeModal(true);
-              }}
-              disabled={disabled}
-              margin="0"
-              text={
-                <AddGoodButton>
-                  <IconContainer>
-                    <BiPlusCircle size={30} />
-                  </IconContainer>
-                  <AddGoodButtonText>
-                    Добавить товар по инвентарьному коду
-                  </AddGoodButtonText>
-                </AddGoodButton>
-              }
-            />
-          </AddGoodButtons>
-        </SpecieWithImageWrapper>
+        {!setPickedGoods ? (
+          pickedGoods.length === 0 && (
+            <SpecieWithImageWrapper></SpecieWithImageWrapper>
+          )
+        ) : (
+          <SpecieWithImageWrapper>
+            <AddGoodButtons>
+              <MyButton
+                onClick={() => {
+                  setAddGoodModal(true);
+                }}
+                disabled={loading || addGoodModal || disabled}
+                margin="0"
+                text={
+                  <AddGoodButton>
+                    <IconContainer>
+                      <BiPlusCircle size={30} />
+                    </IconContainer>
+                    <AddGoodButtonText>
+                      Добавить товар через модальное окно
+                    </AddGoodButtonText>
+                  </AddGoodButton>
+                }
+              />
+              <p>или</p>
+              <MyButton
+                onClick={() => {
+                  setAddGoodByCodeModal(true);
+                }}
+                disabled={disabled}
+                margin="0"
+                text={
+                  <AddGoodButton>
+                    <IconContainer>
+                      <BiPlusCircle size={30} />
+                    </IconContainer>
+                    <AddGoodButtonText>
+                      Добавить товар по инвентарьному коду
+                    </AddGoodButtonText>
+                  </AddGoodButton>
+                }
+              />
+            </AddGoodButtons>
+          </SpecieWithImageWrapper>
+        )}
+
         {pickedGoods.map((item) => (
           <SpecieWithImageWrapper key={item.specie.id}>
             <SpecieWithImage
               tariff={tariff}
-              icon={<FaTrash color="#d4422f" size={15} />}
+              icon={setPickedGoods && <FaTrash color="#d4422f" size={15} />}
               onClickIcon={() => handleDeletePickedGood(item)}
               itemInfo={item}
             />

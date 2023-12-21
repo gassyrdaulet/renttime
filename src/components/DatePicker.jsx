@@ -24,6 +24,7 @@ const DatePicker = ({
   timeFormat,
   selectedDate,
   handleDateChange,
+  dateTimeInputFormat = "DD.MM.yyyy HH:mm",
 }) => {
   return (
     <DatePickerWrapper>
@@ -31,7 +32,7 @@ const DatePicker = ({
         disabled={disabled}
         label={label}
         value={
-          selectedDate ? moment(selectedDate).format("DD.MM.yyyy HH:mm") : ""
+          selectedDate ? moment(selectedDate).format(dateTimeInputFormat) : ""
         }
         onChange={() => {}}
         right={<IoMdCloseCircleOutline size={22} />}

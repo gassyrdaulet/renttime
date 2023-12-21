@@ -11,7 +11,7 @@ const InputField = styled.input`
   width: 100%;
   border: 1px solid gray;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: ${(props) => props.style?.inputFontSize}px;
   outline: none;
   transition: border-color 0.2s;
   &:focus {
@@ -47,6 +47,7 @@ const RightIcon = styled.div`
 `;
 
 const MyInput = ({
+  fontSize = 16,
   label,
   type,
   value,
@@ -75,6 +76,7 @@ const MyInput = ({
       <InputWrapper>
         <InputField
           spellCheck={false}
+          style={{ inputFontSize: fontSize }}
           disabled={disabled}
           type={type}
           ref={inputRef}

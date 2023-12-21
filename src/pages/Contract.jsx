@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { getFormattedContent } from "../service/DocumentService";
 import { generatePDF } from "../service/DocumentService";
 import { getContract, sendCode, confirmCode } from "../api/PublicApi";
@@ -11,13 +11,7 @@ import styled from "styled-components";
 import BlueLinkButton from "../components/BlueLinkButton";
 import config from "../config/config.json";
 import QRCode from "qrcode-generator";
-import {
-  BiCheck,
-  BiCheckCircle,
-  BiMessageAlt,
-  BiMessageCheck,
-  BiPlusCircle,
-} from "react-icons/bi";
+import { BiCheckCircle, BiMessageAlt, BiPlusCircle } from "react-icons/bi";
 
 const { DOMEN } = config;
 
@@ -175,11 +169,10 @@ function Contract() {
   const [contractTemplate, setContractTemplate] = useState({});
   const [actContent, setActContent] = useState([]);
   const [contractContent, setContractContent] = useState([]);
-  const navigate = useNavigate();
   const actRef = useRef();
   const contractRef = useRef();
 
-  useEffect(() => {
+  const getContractCallback = useCallback(() => {
     if (frozenParams) {
       getContract(
         setContractDataLoading,
@@ -193,6 +186,10 @@ function Contract() {
       );
     }
   }, [frozenParams]);
+
+  useEffect(() => {
+    getContractCallback();
+  }, [getContractCallback]);
 
   useEffect(() => {
     if (actTemplate && contractTemplate) {
@@ -579,7 +576,8 @@ function Contract() {
                 frozenParams.contract_code,
                 code,
                 () => {
-                  navigate(0);
+                  setConfirmContractModal(false);
+                  getContractCallback();
                 }
               );
             }}
