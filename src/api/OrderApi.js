@@ -277,3 +277,34 @@ export const cancelOrder = async (
       setLoading(false);
     });
 };
+
+export const signPhysical = async (
+  setLoading,
+  token,
+  order_id,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .post(
+      `/api/orders/signphysical`,
+      {},
+      {
+        params: { order_id },
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    .then(() => {
+      toast.success("Физическая подпись успешно получена", {
+        draggable: false,
+      });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};

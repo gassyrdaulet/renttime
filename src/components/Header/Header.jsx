@@ -21,7 +21,7 @@ import MyButton from "../MyButton";
 import DropMenus from "./DropMenus";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { BiCar } from "react-icons/bi";
+import { BiCalendarAlt, BiCar } from "react-icons/bi";
 
 function Header() {
   const { setIsAuth, setToken } = useAuth();
@@ -71,6 +71,13 @@ function Header() {
         id: 3,
         onClick: () => navigate("/deliveries/new/1"),
         path: "/deliveries",
+      },
+      {
+        name: "БРОНЬ",
+        icon: <BiCalendarAlt />,
+        id: 12,
+        onClick: () => {},
+        path: "/booking",
       },
       {
         name: "СМЕНЫ",

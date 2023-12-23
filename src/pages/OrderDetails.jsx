@@ -9,12 +9,18 @@ import {
   BiDownload,
   BiSolidCoupon,
   BiMinusCircle,
+  BiPen,
 } from "react-icons/bi";
 import styled from "styled-components";
 import { useState, useMemo, useEffect, useCallback } from "react";
 import GoodPicker from "../components/GoodPicker";
 import { useNavigate, useParams } from "react-router-dom";
-import { getOrderDetails, finishOrder, cancelOrder } from "../api/OrderApi";
+import {
+  getOrderDetails,
+  finishOrder,
+  cancelOrder,
+  signPhysical,
+} from "../api/OrderApi";
 import useAuth from "../hooks/useAuth";
 import moment from "moment";
 import config from "../config/config.json";
@@ -38,6 +44,7 @@ const {
   DELIVERY_DIRECTIONS,
   DOMEN,
   DELIVERY_STATUSES,
+  SIGN_TYPES,
 } = config;
 
 const arraysForSort = ["extensions", "discounts", "payments"];
@@ -92,6 +99,7 @@ function OrderDetails() {
   const [addExtensionModal, setAddExtensionModal] = useState(false);
   const [addDeliveryModal, setAddDeliveryModal] = useState(false);
   const [addDiscountModal, setAddDiscountModal] = useState(false);
+  const [confirmPhysical, setConfirmPhysical] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [confirmFinish, setConfirmFinish] = useState(false);
   const [isDebtFinish, setIsDebtFinish] = useState(false);
@@ -102,6 +110,13 @@ function OrderDetails() {
   const credButtons = useMemo(
     () => [
       {
+        id: 0,
+        title: "Получить физ. подпись",
+        icon: <BiPen color="#0F589D" size={20} />,
+        onClick: () => setConfirmPhysical(true),
+        disabled: orderInfo.finished_date || orderInfo.signed,
+      },
+      {
         id: 1,
         title: "Продлить",
         icon: <BiSolidWatch color="#0F589D" size={20} />,
@@ -109,35 +124,35 @@ function OrderDetails() {
         disabled: orderInfo.finished_date,
       },
       {
-        id: 0,
+        id: 2,
         title: "Добавить оплату",
         icon: <BiMoney color="#0F9D58" size={20} />,
         onClick: () => setAddPaymentModal(true),
         disabled: orderInfo.finished_date,
       },
       {
-        id: 7,
+        id: 3,
         title: "Оплата курьеру",
         icon: <BiMoney color="#0F9D58" size={20} />,
         onClick: () => setAddPaymentCourierModal(true),
         disabled: orderInfo.finished_date,
       },
       {
-        id: 6,
+        id: 4,
         title: "Добавить скидку",
         icon: <BiSolidCoupon color="#0F999D" size={20} />,
         onClick: () => setAddDiscountModal(true),
         disabled: orderInfo.finished_date,
       },
       {
-        id: 2,
+        id: 5,
         title: "Добавить доставку",
         icon: <BiCar color="#0F999D" size={20} />,
         onClick: () => setAddDeliveryModal(true),
         disabled: orderInfo.finished_date,
       },
       {
-        id: 3,
+        id: 6,
         title: "Скачать договор",
         icon: <BiDownload color="#00ccff" size={20} />,
         onClick: () =>
@@ -146,14 +161,14 @@ function OrderDetails() {
           ),
       },
       {
-        id: 4,
+        id: 7,
         title: "Отменить заказ",
         icon: <BiMinusCircle color="#AC4555" size={20} />,
         onClick: () => setConfirmCancel(true),
         disabled: orderInfo.finished_date,
       },
       {
-        id: 5,
+        id: 8,
         title: "Завершить заказ",
         icon: <BiFile color="#aF09dd" size={20} />,
         onClick: () => setConfirmFinish(true),
@@ -314,7 +329,9 @@ function OrderDetails() {
       },
       { value: "Договор подписан", type: "rowTitle" },
       {
-        value: orderInfo.signed ? "ДА" : "НЕТ",
+        value: orderInfo.signed
+          ? `ДА (${SIGN_TYPES[orderInfo.sign_type]})`
+          : "НЕТ",
         type: "rowValue",
       },
       { value: "Дата подписания договора", type: "rowTitle" },
@@ -781,6 +798,26 @@ function OrderDetails() {
         onConfirm={() =>
           cancelOrder(setEditloading, token, params.id, () => {
             setConfirmCancel(false);
+            getOrderDetailsCallback();
+          })
+        }
+      />
+      <ConfirmModal
+        visible={confirmPhysical}
+        setVisible={setConfirmPhysical}
+        loading={editLoading}
+        title="Подтвердите действие"
+        question={
+          <div>
+            <p>
+              Вы получаете физическую подпись. Убедитесь в сохранности документа
+              договора и сохраните его до рассторжения договора.{" "}
+            </p>
+          </div>
+        }
+        onConfirm={() =>
+          signPhysical(setEditloading, token, params.id, () => {
+            setConfirmPhysical(false);
             getOrderDetailsCallback();
           })
         }

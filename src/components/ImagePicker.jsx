@@ -15,8 +15,13 @@ const borderAnimation = keyframes`
   }
 `;
 const ImageInputWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
   padding: 0 10px;
   margin: 0 auto;
+  width: 100%;
 `;
 const ImagePickerLabel = styled.p`
   user-select: none;

@@ -6,7 +6,7 @@ export const createNewGood = async (
   token,
   goodData,
   photo,
-  next
+  next = () => {}
 ) => {
   setLoading(true);
   const formData = new FormData();
@@ -18,9 +18,38 @@ export const createNewGood = async (
     .post(`/api/goods/new`, formData, {
       headers: { Authorization: "Bearer " + token },
     })
-    .then(({ data }) => {
-      const msg = data?.message;
-      toast.success(msg ? msg : "Success", { draggable: false });
+    .then(() => {
+      toast.success("Новый товар успешно создан", { draggable: false });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const editGood = async (
+  setLoading,
+  token,
+  goodData,
+  photo,
+  next = () => {}
+) => {
+  setLoading(true);
+  const formData = new FormData();
+  formData.append("image", photo);
+  Object.keys(goodData).forEach((key) => {
+    formData.append(key, goodData[key]);
+  });
+  axiosNT
+    .post(`/api/goods/edit`, formData, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      toast.success("Товар успешно отредактирован", { draggable: false });
       next();
     })
     .catch((e) => {
@@ -168,6 +197,81 @@ export const getSpecies = async (setLoading, token, setSpecies, good_id) => {
     })
     .then(({ data }) => {
       setSpecies(data);
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const deleteGood = async (
+  setLoading,
+  token,
+  good_id,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .delete(`/api/goods/deletegood`, {
+      params: { good_id },
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      toast.success("Товар успешно удален", { draggable: false });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const deleteSpecie = async (
+  setLoading,
+  token,
+  specie_id,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .delete(`/api/goods/deletespecie`, {
+      params: { specie_id },
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      toast.success("Единица успешно удалена", { draggable: false });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const deleteImage = async (
+  setLoading,
+  token,
+  good_id,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .delete(`/api/goods/deleteimage`, {
+      params: { good_id },
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      toast.success("Изображение успешно удалено", { draggable: false });
+      next();
     })
     .catch((e) => {
       const errMsg = e?.response?.data?.message;

@@ -184,7 +184,7 @@ function CreateGoodForm({
               token,
               {
                 ...goodData,
-                group: selectedGroup,
+                group_id: selectedGroup,
               },
               selectedImage,
               () => {

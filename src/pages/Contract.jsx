@@ -11,9 +11,14 @@ import styled from "styled-components";
 import BlueLinkButton from "../components/BlueLinkButton";
 import config from "../config/config.json";
 import QRCode from "qrcode-generator";
-import { BiCheckCircle, BiMessageAlt, BiPlusCircle } from "react-icons/bi";
+import {
+  BiCheckCircle,
+  BiMessageAlt,
+  BiPen,
+  BiPlusCircle,
+} from "react-icons/bi";
 
-const { DOMEN } = config;
+const { DOMEN, SIGN_TYPES } = config;
 
 const ContractPageWrapper = styled.div`
   display: block;
@@ -61,8 +66,9 @@ const ContractItem = styled.div`
     props.style?.textCenterAlign ? "translateX(-50%)" : ""};
   text-align: ${(props) => (props.style?.textCenterAlign ? "center" : "")};
   text-align: ${(props) => (props.style?.textFillAlign ? "justify" : "")};
-  font-family: ${(props) => props.style?.pageFont};
+  font-family: ${(props) => props.style?.pageFont}, serif;
   max-height: ${(props) => props.style?.textHeight};
+  padding-bottom: 1.5px;
 `;
 const ContractItemTable = styled.table`
   position: ${(props) => (props.style?.hidden ? "static" : "absolute")};
@@ -237,7 +243,7 @@ function Contract() {
           margin: 0,
           scalable: true,
         });
-        const elements = document.getElementsByName("qrcode");
+        const elements = document.getElementsByName("qrcodeclient");
         for (let element of elements) {
           if (element) {
             element.innerHTML = qrLinkSvg + qrClientDataSvg;
@@ -247,6 +253,43 @@ function Contract() {
     }
   }, [
     orderData,
+    contractContent,
+    actContent,
+    params.contract_code,
+    params.order_id,
+    params.organization_id,
+  ]);
+
+  useEffect(() => {
+    if (orderData && Object.keys(orderData).length !== 0) {
+      const qrLink = QRCode(0, "H");
+      qrLink.addData(
+        `${DOMEN}/contract/${params.organization_id}/${params.order_id}/${params.contract_code}`
+      );
+      qrLink.make();
+      const qrOrgData = QRCode(0, "L");
+      const orgQrData = {
+        bin: orgData.kz_paper_bin,
+        sign_date: orderData.order_created_date,
+        org_cp: orderData.cellphone,
+      };
+      qrOrgData.addData(JSON.stringify(orgQrData));
+      qrOrgData.make();
+      const qrLinkSvg = qrLink.createSvgTag({ margin: 0, scalable: true });
+      const qrClientDataSvg = qrOrgData.createSvgTag({
+        margin: 0,
+        scalable: true,
+      });
+      const elements = document.getElementsByName("qrcodeorg");
+      for (let element of elements) {
+        if (element) {
+          element.innerHTML = qrLinkSvg + qrClientDataSvg;
+        }
+      }
+    }
+  }, [
+    orderData,
+    orgData,
     contractContent,
     actContent,
     params.contract_code,
@@ -276,63 +319,83 @@ function Contract() {
 
   return (
     <ContractPageWrapper>
-      <CenterContainer>
-        <GrayWrapper>
-          <Text>
-            Вы находитесь на странице договора заказа аренды №
-            {orderData.order_id}.
-          </Text>
-          <Text>
-            Если Вы являетесь арендатором, пожалуйста, прочтите условия договора
-            и ознакомьтесь с ним. Далее, если вы согласны, то нажмите кнопку
-            «Подтвердить согласие» в самом низу этой страницы.
-          </Text>
-          <Text>
-            В случае если вас не устраивают эти условия, вы можете покинуть эту
-            страницу и договор не будет считаться действительным.
-          </Text>
-          <ButtonsContainer>
-            <MyButton
-              text="Скачать ДОГОВОР"
-              onClick={getContractPDF}
-              disabled={contractDataLoading}
-              margin="0 10px 0 0"
-            />
-            <MyButton
-              text="Скачать АКТ"
-              onClick={getActPDF}
-              disabled={contractDataLoading}
-              margin="0"
-            />
-          </ButtonsContainer>
-          <Text>История заказа:</Text>
-          <StatusWrapper>
-            <StatusText>
-              <BiPlusCircle />
-              <p>Договор создан</p>
-            </StatusText>
-            {orderData.order_created_date}
-          </StatusWrapper>
-          <StatusWrapper>
-            <StatusText>
-              <BiMessageAlt />
-              <p>Сообщение с кодом отправлено</p>
-            </StatusText>
-            {orderData.last_sign_sms === "Invalid date"
-              ? "-"
-              : orderData.last_sign_sms}
-          </StatusWrapper>
-          <StatusWrapper>
-            <StatusText>
-              <BiCheckCircle />
-              <p>Договор подписан клиентом</p>
-            </StatusText>
-            {orderData.sign_date === "Invalid date"
-              ? "НЕТ"
-              : orderData.sign_date}
-          </StatusWrapper>
-        </GrayWrapper>
-      </CenterContainer>
+      {Object.keys(contractTemplate).length !== 0 &&
+        Object.keys(actTemplate).length !== 0 && (
+          <CenterContainer>
+            <GrayWrapper>
+              <Text>
+                Вы находитесь на странице договора заказа аренды №
+                {orderData.order_id}
+              </Text>
+              <Text>
+                Если Вы являетесь арендатором, пожалуйста, прочтите условия
+                договора и ознакомьтесь с ним. Далее, если вы согласны, то
+                нажмите кнопку «Подтвердить согласие» в самом низу этой
+                страницы.
+              </Text>
+              <Text>
+                В случае если вас не устраивают эти условия, вы можете покинуть
+                эту страницу и договор не будет считаться действительным.
+              </Text>
+              <ButtonsContainer>
+                <MyButton
+                  text="Скачать ДОГОВОР"
+                  onClick={getContractPDF}
+                  disabled={contractDataLoading}
+                  margin="0 10px 0 0"
+                />
+                <MyButton
+                  text="Скачать АКТ"
+                  onClick={getActPDF}
+                  disabled={contractDataLoading}
+                  margin="0"
+                />
+              </ButtonsContainer>
+              <Text>История заказа:</Text>
+              <StatusWrapper>
+                <StatusText>
+                  <BiPlusCircle />
+                  <p>Договор создан</p>
+                </StatusText>
+                {orderData.order_created_date}
+              </StatusWrapper>
+              <StatusWrapper>
+                <StatusText>
+                  <BiMessageAlt />
+                  <p>Сообщение с кодом отправлено</p>
+                </StatusText>
+                {orderData.last_sign_sms === "Invalid date"
+                  ? "-"
+                  : orderData.last_sign_sms}
+              </StatusWrapper>
+              <StatusWrapper>
+                <StatusText>
+                  <BiCheckCircle />
+                  <p>Договор подписан клиентом</p>
+                </StatusText>
+                {orderData.signed ? orderData.sign_date : "НЕТ"}
+              </StatusWrapper>
+              {orderData.signed && (
+                <StatusWrapper>
+                  <StatusText>
+                    <BiPen />
+                    <p>Тип подписи</p>
+                  </StatusText>
+                  {SIGN_TYPES[orderData.sign_type]}
+                </StatusWrapper>
+              )}
+              <StatusWrapper>
+                <StatusText>
+                  <BiCheckCircle />
+                  <p>Договор рассторгнут</p>
+                </StatusText>
+                {orderData.finished_date !== "Invalid date"
+                  ? orderData.finished_date
+                  : "НЕТ"}
+              </StatusWrapper>
+            </GrayWrapper>
+          </CenterContainer>
+        )}
       {contractDataLoading ? (
         <div className="Center">
           <GrayWrapper>
@@ -354,10 +417,19 @@ function Contract() {
             {actContent.map((dataRow, i) => (
               <ContractRow key={i} style={dataRow.style}>
                 {dataRow.rowItems.map((dataItem, i) => {
-                  if (dataItem.type === "qr") {
+                  if (dataItem.type === "qrclient") {
                     return (
                       <ContractItemQR
-                        name="qrcode"
+                        name="qrcodeclient"
+                        key={i}
+                        style={{ ...dataItem.style, hidden: dataItem.hidden }}
+                      />
+                    );
+                  }
+                  if (dataItem.type === "qrorg") {
+                    return (
+                      <ContractItemQR
+                        name="qrcodeorg"
                         key={i}
                         style={{ ...dataItem.style, hidden: dataItem.hidden }}
                       />
@@ -438,10 +510,19 @@ function Contract() {
             {contractContent.map((dataRow, i) => (
               <ContractRow key={i} style={dataRow.style}>
                 {dataRow.rowItems.map((dataItem, i) => {
-                  if (dataItem.type === "qr") {
+                  if (dataItem.type === "qrclient") {
                     return (
                       <ContractItemQR
-                        name="qrcode"
+                        name="qrcodeclient"
+                        key={i}
+                        style={{ ...dataItem.style, hidden: dataItem.hidden }}
+                      />
+                    );
+                  }
+                  if (dataItem.type === "qrorg") {
+                    return (
+                      <ContractItemQR
+                        name="qrcodeorg"
                         key={i}
                         style={{ ...dataItem.style, hidden: dataItem.hidden }}
                       />
@@ -521,12 +602,12 @@ function Contract() {
         <MyButton
           text="Подтвердить согласие"
           onClick={() => {
-            sendCode(
-              setConfirmLoading,
-              frozenParams.organization_id,
-              frozenParams.order_id,
-              frozenParams.contract_code
-            );
+            // sendCode(
+            //   setConfirmLoading,
+            //   frozenParams.organization_id,
+            //   frozenParams.order_id,
+            //   frozenParams.contract_code
+            // );
             setConfirmContractModal(true);
           }}
           disabled={contractDataLoading || orderData.signed}

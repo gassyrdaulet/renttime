@@ -7,6 +7,7 @@ import DatePicker from "./DatePicker";
 import { createNewClientKZ } from "../api/ClientApi";
 import useAuth from "../hooks/useAuth";
 import config from "../config/config.json";
+import moment from "moment";
 
 const { GENDERS, PAPER_AUTHORITY } = config;
 
@@ -69,10 +70,14 @@ function CreateNewClient({
     { id: "second_name", title: "Фамилия *", value: "" },
     { id: "name", title: "Имя *", value: "" },
     { id: "father_name", title: "Отчество", value: "" },
+    { id: "born_date", title: "Место рождения *", value: "" },
+    { id: "nationality", title: "Национальность *", value: "" },
+    { id: "city", title: "Город *", value: "" },
+    { id: "address", title: "Район и адрес *", value: "" },
     {
       id: "paper_givendate",
-      title: "Дата выдачи документа",
-      value: "",
+      title: "Дата выдачи документа *",
+      value: moment(),
       type: "date",
     },
     {
@@ -82,7 +87,6 @@ function CreateNewClient({
       type: "select",
       options: genderOptions,
     },
-    { id: "address", title: "Адрес", value: "" },
     { id: "email", title: "Эл. почта", value: "" },
   ]);
 
@@ -146,6 +150,9 @@ function CreateNewClient({
           onClick={() => {
             const data = {};
             inputs.forEach((item) => {
+              if (item.type === "date") {
+                return (data[item.id] = moment(item.value).toDate());
+              }
               if (item.value) data[item.id] = item.value;
             });
             createNewClientKZ(setCreateNewClientLoading, token, data, next);

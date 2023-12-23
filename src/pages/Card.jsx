@@ -1,11 +1,11 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import useAuth from "../hooks/useAuth";
 import ContainerLayout from "../components/ContainerLayout";
-import { FaPencilAlt, FaPlusSquare } from "react-icons/fa";
+import { FaPencilAlt, FaPlusSquare, FaTrashAlt } from "react-icons/fa";
 import CredButtons from "../components/CredButtons";
 import Modal from "../components/Modal";
 import Loading from "../components/Loading";
-import { getSpecies, getGood } from "../api/GoodsApi";
+import { getSpecies, getGood, deleteGood } from "../api/GoodsApi";
 import { useParams, useNavigate } from "react-router-dom";
 import CreateSpecieForm from "../components/CreateSpecieForm";
 import cl from "../styles/Card.module.css";
@@ -13,16 +13,21 @@ import { BiSolidChevronLeft } from "react-icons/bi";
 import ImageContainer from "../components/ImageContainer";
 import SpecieItem from "../components/SpecieItem";
 import config from "../config/config.json";
+import ConfirmModal from "../components/ConfirmModal";
+import EditGoodForm from "../components/EditGoodForm";
 
 const { SPECIE_STATUSES_AVAILABLE } = config;
 
 function Card() {
   const [speciesLoading, setSpeciesLoading] = useState(true);
   const [goodDataLoading, setGoodDataLoading] = useState(true);
+  const [editLoading, setEditLoading] = useState(false);
   const [createSpecieLoading, setCreateSpecieLoading] = useState(false);
   const [species, setSpecies] = useState([]);
   const [goodData, setGoodData] = useState({});
   const [createSpecieModal, setCreateSpecieModal] = useState(false);
+  const [editGoodModal, setEditGoodModal] = useState(false);
+  const [confimDeleteModal, setConfirmDeleteModal] = useState(false);
   const [searchInputText, setSearchInputText] = useState("");
   const { token } = useAuth();
   const { id } = useParams();
@@ -41,14 +46,24 @@ function Card() {
       id: 1,
       title: "Редактировать",
       icon: <FaPencilAlt color="#0F589D" size={20} />,
-      onClick: () => {},
+      onClick: () => setEditGoodModal(true),
+    },
+    {
+      id: 2,
+      title: "Удалить",
+      icon: <FaTrashAlt color="#dd580f" size={20} />,
+      onClick: () => setConfirmDeleteModal(true),
     },
   ];
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
     getSpecies(setSpeciesLoading, token, setSpecies, id);
     getGood(setGoodDataLoading, token, setGoodData, id);
   }, [id, token]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const filteredSpecies = useMemo(
     () =>
@@ -168,7 +183,17 @@ function Card() {
         ) : (
           <div className={cl.Species}>
             {filteredSpecies.map((item) => (
-              <SpecieItem specieItem={item} key={item.id} />
+              <SpecieItem
+                deleteButton={true}
+                nextAfterDelete={() => {
+                  fetchData();
+                }}
+                specieItem={item}
+                key={item.id}
+                cursorType="default"
+                editLoading={editLoading}
+                setEditLoading={setEditLoading}
+              />
             ))}
           </div>
         )}
@@ -184,6 +209,33 @@ function Card() {
           createSpecieLoading={createSpecieLoading}
           setCreateSpecieLoading={setCreateSpecieLoading}
           good_id={id}
+        />
+      </Modal>
+      <ConfirmModal
+        visible={confimDeleteModal}
+        setVisible={setConfirmDeleteModal}
+        loading={editLoading}
+        title="Подтвердите действие"
+        question={<p>Вы уверены что хотите удалить этот товар?</p>}
+        onConfirm={() =>
+          deleteGood(setEditLoading, token, params.id, () => {
+            navigate(`/cards/${params.group}/${params.page}`);
+          })
+        }
+      />
+      <Modal
+        setModalVisible={setEditGoodModal}
+        modalVisible={editGoodModal}
+        noEscape={goodDataLoading || editLoading}
+        title="Редактирование товара"
+      >
+        <EditGoodForm
+          isLoading={editLoading}
+          setLoading={setEditLoading}
+          data={goodData}
+          next={() => {
+            fetchData();
+          }}
         />
       </Modal>
     </div>

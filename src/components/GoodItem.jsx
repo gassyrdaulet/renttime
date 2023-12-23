@@ -123,7 +123,7 @@ function GoodItem({ goodItem, onClick, index, marked }) {
         alt={goodItem?.name}
         size="medium"
         width="95%"
-        height="inherit"
+        height="fit-content"
         goodId={goodItem.id}
       />
       <ProductInfoRow>

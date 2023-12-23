@@ -98,14 +98,14 @@ export const getFormattedContent = (
               textFillAlign: item.fill,
               textLeft: item.x,
               textTop: item.y,
-              textSize: item.size,
+              textSize: item.size ? item.size : template.fontSize,
               textWeight: item.weight,
               textWidth: item.width,
               textColor: item.color,
             },
             text: getFormattedText(item.text),
           };
-        } else if (item.type === "qr") {
+        } else if (item.type.startsWith("qr")) {
           return {
             type: item.type,
             style: { itemLeft: item.x, itemWidth: item.width },

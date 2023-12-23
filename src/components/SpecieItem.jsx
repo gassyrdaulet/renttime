@@ -1,11 +1,16 @@
 import styled from "styled-components";
 import moment from "moment";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import config from "../config/config.json";
+import { FaTrashAlt } from "react-icons/fa";
+import ConfirmModal from "./ConfirmModal";
+import { deleteSpecie } from "../api/GoodsApi";
+import useAuth from "../hooks/useAuth";
 
 const { SPECIE_STATUSES, SPECIE_STATUSES_COLORS } = config;
 
 const SpecieContainer = styled.div`
+  position: relative;
   max-width: 210px;
   min-width: 210px;
   height: 100px;
@@ -15,7 +20,7 @@ const SpecieContainer = styled.div`
     ${(props) => (props.style?.isMarked ? props.style.markColor : "#ccc")};
   box-shadow: 0 0 1px rgba(0, 0, 0, 0.25);
   border-radius: 3px;
-  cursor: pointer;
+  cursor: ${(props) => props.style.cursorType};
   transition: background-color 0.1s;
   &:hover {
     background-color: #efefef;
@@ -36,7 +41,9 @@ const SpecieInfoHalf = styled.div`
   width: 50%;
   flex-direction: column;
 `;
-const SpecieInfo = styled.div``;
+const SpecieInfo = styled.div`
+  display: block;
+`;
 const SpecieInfoTitle = styled.p`
   font-size: 10px;
   color: #cecece;
@@ -60,8 +67,36 @@ const SpecieInfoText = styled.p`
     font-size: 10px;
   }
 `;
+const DeleteButtonWrapper = styled.div`
+  position: absolute;
+  top: 0;
+  right: 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  &:hover {
+    background-color: #ccc;
+  }
+  margin: 2px;
+`;
+const DeleteButtonIconWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 2px;
+`;
 
-function SpecieItem({ specieItem, onClick, marked }) {
+function SpecieItem({
+  specieItem,
+  onClick,
+  marked,
+  deleteButton,
+  nextAfterDelete,
+  cursorType = "pointer",
+  editLoading,
+  setEditLoading,
+}) {
+  const { token } = useAuth();
+  const [confirmDeleteModal, setConfirmDeleteModal] = useState(false);
   const firstHalf = useMemo(
     () => [
       {
@@ -104,7 +139,11 @@ function SpecieItem({ specieItem, onClick, marked }) {
   return (
     <SpecieContainer
       onClick={onClick}
-      style={{ isMarked: marked?.isMarked, markColor: marked?.markColor }}
+      style={{
+        isMarked: marked?.isMarked,
+        markColor: marked?.markColor,
+        cursorType,
+      }}
     >
       <SpecieInfoWrapper>
         <SpecieInfoHalf>
@@ -131,7 +170,33 @@ function SpecieItem({ specieItem, onClick, marked }) {
             </SpecieInfo>
           ))}
         </SpecieInfoHalf>
+        {deleteButton && (
+          <DeleteButtonWrapper
+            onClick={() => {
+              if (!editLoading) {
+                setConfirmDeleteModal(true);
+              }
+            }}
+          >
+            <DeleteButtonIconWrapper>
+              <FaTrashAlt size={14} />
+            </DeleteButtonIconWrapper>
+          </DeleteButtonWrapper>
+        )}
       </SpecieInfoWrapper>
+      <ConfirmModal
+        visible={confirmDeleteModal}
+        setVisible={setConfirmDeleteModal}
+        loading={editLoading}
+        title="Подтвердите действие"
+        question={<p>Вы уверены что хотите удалить эту единицу?</p>}
+        onConfirm={() =>
+          deleteSpecie(setEditLoading, token, specieItem.id, () => {
+            setConfirmDeleteModal(false);
+            nextAfterDelete();
+          })
+        }
+      />
     </SpecieContainer>
   );
 }
