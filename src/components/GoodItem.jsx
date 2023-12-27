@@ -30,14 +30,15 @@ const GoodContainer = styled.div`
   }
 `;
 const ProductTitle = styled.p`
-  font-size: 13px;
+  font-size: 10px;
   width: 100%;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
   margin-bottom: 5px;
   font-weight: 600;
+  min-height: 33px;
+  max-height: 33px;
 `;
 const ProductInfoRow = styled.div`
   display: flex;

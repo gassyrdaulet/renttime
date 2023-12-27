@@ -1,9 +1,14 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import useAuth from "../hooks/useAuth";
-import { addNewUser, getAllUsers } from "../api/OrganizationApi";
+import {
+  addNewUser,
+  deleteUser,
+  getAllUsers,
+  grantPrivilege,
+} from "../api/OrganizationApi";
 import FormLayout from "./FormLayout";
 import TableLayout from "./TableLayout";
-import { BiCheckboxChecked, BiCheckbox } from "react-icons/bi";
+import { BiCheckboxChecked, BiCheckbox, BiX } from "react-icons/bi";
 import Modal from "./Modal";
 import Loading from "./Loading";
 import styled from "styled-components";
@@ -11,10 +16,12 @@ import CredButtons from "./CredButtons";
 import { FaPlusSquare } from "react-icons/fa";
 import MyInput from "./MyInput";
 import Switch from "./Switch";
+import ConfirmModal from "./ConfirmModal";
 
 const CheckBoxWrapper = styled.div`
   display: block;
   width: 100%;
+  color: ${(props) => props.disabled && "gray"};
 `;
 const CredButtonsWrapper = styled.div`
   width: 400px;
@@ -29,6 +36,8 @@ function EditUsersForm({ isLoading, setIsLoading }) {
   const [editLoading, setEditLoading] = useState(false);
   const [addNewUserModal, setAddNewUserModal] = useState(false);
   const [checkedRoles, setCheckedRoles] = useState({});
+  const [grantPrivilegeLoading, setGrantPrivilegeLoading] = useState(false);
+  const [confirmDeleteModal, setConfirmDeleteModal] = useState({});
 
   const getAllUsersCallback = useCallback(() => {
     getAllUsers(setIsLoading, token, setUsers);
@@ -46,11 +55,24 @@ function EditUsersForm({ isLoading, setIsLoading }) {
     });
   }, []);
 
+  const handleConfirmDeleteModal = useCallback((id, value) => {
+    setConfirmDeleteModal((prev) => {
+      const temp = { ...prev };
+      if (temp[id]) {
+        temp[id] = value;
+        return temp;
+      }
+      temp[id] = value;
+      return temp;
+    });
+  }, []);
+
   useEffect(() => {
     getAllUsersCallback();
   }, [getAllUsersCallback]);
 
   useEffect(() => {
+    setUserId(0);
     setCheckedRoles({});
   }, [addNewUserModal]);
 
@@ -96,6 +118,7 @@ function EditUsersForm({ isLoading, setIsLoading }) {
     ],
     []
   );
+
   const headers = useMemo(
     () => [
       {
@@ -115,8 +138,21 @@ function EditUsersForm({ isLoading, setIsLoading }) {
           fixedMinWidth: "100px",
           fixedJustWidth: "100px",
           fixedMaxWidth: "100px",
+          columnPosition: "sticky",
+          left: -1,
         },
         title: "ИМЯ",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
+      },
+      {
+        id: "cellphone",
+        style: {
+          fixedMinWidth: "100px",
+          fixedJustWidth: "100px",
+          fixedMaxWidth: "100px",
+        },
+        title: "НОМЕР ТЕЛЕФОНА",
         dataStyle: { dataAlign: "center" },
         type: "text",
       },
@@ -132,7 +168,24 @@ function EditUsersForm({ isLoading, setIsLoading }) {
         type: "other",
         children: ({ dataItem }) => {
           return (
-            <CheckBoxWrapper>
+            <CheckBoxWrapper
+              disabled={item.id === "owner" || grantPrivilegeLoading}
+              onClick={() => {
+                if (!grantPrivilegeLoading && item.id !== "owner") {
+                  grantPrivilege(
+                    (v) => {
+                      if (v) setGrantPrivilegeLoading(true);
+                    },
+                    token,
+                    dataItem.userId,
+                    item.id,
+                    () => {
+                      getAllUsers(setGrantPrivilegeLoading, token, setUsers);
+                    }
+                  );
+                }
+              }}
+            >
               {dataItem[item.id] ? (
                 <BiCheckboxChecked size={25} />
               ) : (
@@ -142,16 +195,75 @@ function EditUsersForm({ isLoading, setIsLoading }) {
           );
         },
       })),
+      {
+        id: "deleteUserButton",
+        style: {
+          fixedMinWidth: "100px",
+          fixedJustWidth: "100px",
+          fixedMaxWidth: "100px",
+        },
+        dataStyle: { dataAlign: "center", cursorType: "pointer" },
+        title: "ВЫГНАТЬ",
+        type: "other",
+        children: ({ dataItem }) => {
+          return (
+            <CheckBoxWrapper
+              disabled={
+                grantPrivilegeLoading ||
+                editLoading ||
+                confirmDeleteModal[dataItem.id]
+              }
+              onClick={() => {
+                if (
+                  !grantPrivilegeLoading &&
+                  !editLoading &&
+                  !confirmDeleteModal[dataItem.id]
+                ) {
+                  handleConfirmDeleteModal(dataItem.id, true);
+                }
+              }}
+            >
+              <BiX size={25} color="red" />
+              <ConfirmModal
+                visible={confirmDeleteModal[dataItem.id]}
+                setVisible={(v) => {
+                  handleConfirmDeleteModal(dataItem.id, v);
+                }}
+                loading={editLoading}
+                title="Выгнать пользователя"
+                question={`Вы уверены что хотите выгнать этого пользователя из организации? (ID: ${dataItem.userId})`}
+                onConfirm={(e) => {
+                  e.preventDefault();
+                  deleteUser(setEditLoading, token, dataItem.userId, () => {
+                    handleConfirmDeleteModal(dataItem.id, false);
+                    getAllUsersCallback();
+                  });
+                }}
+              />
+            </CheckBoxWrapper>
+          );
+        },
+      },
     ],
-    [roles]
+    [
+      roles,
+      getAllUsersCallback,
+      grantPrivilegeLoading,
+      token,
+      editLoading,
+      confirmDeleteModal,
+      handleConfirmDeleteModal,
+    ]
   );
   const dataForTable = useMemo(
     () =>
       users.map((item, index) => {
         return {
           id: item.id,
+          userId: item.user_id,
           index: index + 1,
           name: item.userInfo?.name,
+          cellphone: item.userInfo?.cellphone,
           owner: item.owner,
           admin: item.admin,
           courier: item.courier,
@@ -208,19 +320,18 @@ function EditUsersForm({ isLoading, setIsLoading }) {
                 unsigned={true}
                 max={9999999999}
               />
-              {roles.map((item) =>
-                item.editable ? (
-                  <Switch
-                    key={item.id}
-                    label={item.title}
-                    isChecked={
-                      checkedRoles[item.id] ? checkedRoles[item.id] : false
-                    }
-                    setChecked={() => handleRolesCheck(item.id)}
-                  />
-                ) : (
-                  ""
-                )
+              {roles.map(
+                (item) =>
+                  item.editable && (
+                    <Switch
+                      key={item.id}
+                      label={item.title}
+                      isChecked={
+                        checkedRoles[item.id] ? checkedRoles[item.id] : false
+                      }
+                      setChecked={() => handleRolesCheck(item.id)}
+                    />
+                  )
               )}
             </div>
           }

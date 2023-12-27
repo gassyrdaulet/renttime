@@ -161,6 +161,59 @@ export const issueDelivery = async (
     });
 };
 
+export const newDelivery = async (
+  setLoading,
+  token,
+  order_id,
+  deliveryData,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .post(
+      `/api/deliveries/new`,
+      { order_id, ...deliveryData },
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    .then(() => {
+      toast.success("Новая доставка успешно создана", { draggable: false });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const editDelivery = async (
+  setLoading,
+  token,
+  deliveryData,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .post(`/api/deliveries/edit`, deliveryData, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      toast.success("Доставка успешно отредактирована", { draggable: false });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
 export const refuseDelivery = async (
   setLoading,
   token,
@@ -181,6 +234,37 @@ export const refuseDelivery = async (
     )
     .then(() => {
       toast.success(`Вы успешно отказались от доставки`);
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const cancelDelivery = async (
+  setLoading,
+  token,
+  delivery_id,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .post(
+      `/api/deliveries/cancel`,
+      {},
+      {
+        params: {
+          delivery_id,
+        },
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    .then(() => {
+      toast.success(`Доставка успешно отменена`);
       next();
     })
     .catch((e) => {

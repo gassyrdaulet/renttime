@@ -25,12 +25,13 @@ const SpecieContainer = styled.div`
   }
 `;
 const ProductTitle = styled.p`
-  font-size: 13px;
+  font-size: 10px;
   width: 100%;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  max-height: 22px;
+  min-height: 22px;
   margin-bottom: 5px;
   font-weight: 600;
 `;

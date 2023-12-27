@@ -29,11 +29,7 @@ const ButtonsContainer = styled.div`
   padding: 20px;
 `;
 
-function CreateNewClient({
-  next = () => {},
-  createNewClientLoading,
-  setCreateNewClientLoading,
-}) {
+function CreateNewClient({ next = () => {}, isLoading, setIsLoading }) {
   const { token } = useAuth();
   const authorityOptions = useMemo(() => {
     try {
@@ -70,14 +66,14 @@ function CreateNewClient({
     { id: "second_name", title: "Фамилия *", value: "" },
     { id: "name", title: "Имя *", value: "" },
     { id: "father_name", title: "Отчество", value: "" },
-    { id: "born_date", title: "Место рождения *", value: "" },
+    { id: "born_region", title: "Место рождения *", value: "" },
     { id: "nationality", title: "Национальность *", value: "" },
     { id: "city", title: "Город *", value: "" },
     { id: "address", title: "Район и адрес *", value: "" },
     {
       id: "paper_givendate",
       title: "Дата выдачи документа *",
-      value: moment(),
+      value: moment().startOf("day"),
       type: "date",
     },
     {
@@ -145,8 +141,8 @@ function CreateNewClient({
         <MyButton
           type="submit"
           text="Сохранить"
-          disabled={createNewClientLoading}
-          loading={String(createNewClientLoading)}
+          disabled={isLoading}
+          loading={String(isLoading)}
           onClick={() => {
             const data = {};
             inputs.forEach((item) => {
@@ -155,7 +151,7 @@ function CreateNewClient({
               }
               if (item.value) data[item.id] = item.value;
             });
-            createNewClientKZ(setCreateNewClientLoading, token, data, next);
+            createNewClientKZ(setIsLoading, token, data, next);
           }}
         />
       </ButtonsContainer>

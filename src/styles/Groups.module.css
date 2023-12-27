@@ -1,7 +1,6 @@
 .GroupsWrapper {
   display: flex;
   flex-direction: column;
-  overflow-x: auto;
   max-height: 90vh;
 }
 .ActiveGroup {

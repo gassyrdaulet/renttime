@@ -4,7 +4,7 @@ import MyInput from "./MyInput";
 import MyTextarea from "./MyTextarea";
 import styled from "styled-components";
 import Select from "./Select";
-import { newDelivery } from "../api/OrderApi";
+import { newDelivery } from "../api/DeliveriesApi";
 import useAuth from "../hooks/useAuth";
 
 const CreateDeliverytFormWrapper = styled.form`

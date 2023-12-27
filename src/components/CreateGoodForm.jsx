@@ -6,7 +6,6 @@ import ImagePicker from "./ImagePicker";
 import Select from "./Select";
 import { createNewGood } from "../api/GoodsApi";
 import useAuth from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
 
 const CreateGoodFormWrapper = styled.form`
   display: flex;
@@ -55,6 +54,7 @@ function CreateGoodForm({
   setCreateGoodLoading,
   groups,
   groupsLoading,
+  next,
 }) {
   const [inputs, setInputs] = useState([
     { id: 0, title: "Название", value: "", name: "name", inputMode: "text" },
@@ -107,7 +107,6 @@ function CreateGoodForm({
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedGroup, setSelectedGroup] = useState(-1);
   const { token } = useAuth();
-  const navigate = useNavigate();
 
   const defaultOptions = useMemo(
     () => [{ id: -1, name: "Оставить без группы" }],
@@ -187,9 +186,7 @@ function CreateGoodForm({
                 group_id: selectedGroup,
               },
               selectedImage,
-              () => {
-                navigate(0);
-              }
+              next
             );
           }}
         />

@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { useNavigate, useParams } from "react-router-dom";
 import Groups from "../components/Groups";
 import EditUsersForm from "../components/EditUsersForm";
+import EditPaymentMethodsForm from "../components/EditPaymentMethodsForm";
 
 const MainContent = styled.div`
   display: flex;
@@ -28,6 +29,12 @@ function Settings() {
     () => ({
       users: (
         <EditUsersForm
+          isLoading={switchLoading}
+          setIsLoading={setSwitchLoading}
+        />
+      ),
+      methods: (
+        <EditPaymentMethodsForm
           isLoading={switchLoading}
           setIsLoading={setSwitchLoading}
         />

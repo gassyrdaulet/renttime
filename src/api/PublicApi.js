@@ -39,7 +39,8 @@ export const sendCode = async (
   setLoading,
   organization_id,
   order_id,
-  contract_code
+  contract_code,
+  next = () => {}
 ) => {
   setLoading(true);
   axiosNT
@@ -48,6 +49,7 @@ export const sendCode = async (
     })
     .then(() => {
       toast.success("СМС код успешно отправлен", { draggable: false });
+      next();
     })
     .catch((e) => {
       const errMsg = e?.response?.data?.message;

@@ -6,22 +6,24 @@ const MyButtonContainer = style.div`
     justify-content: center;    
 `;
 const MyButton = style.div`
-    padding: 10px;
+    padding: ${(props) => props.style.buttonPadding};
     font-size: 13px;
     margin: 0 auto;
     background-color: transparent;
     color: ${(props) => (props.disabled ? "gray" : "blue")};
     border: none;
     cursor: ${(props) => (props.disabled ? "default" : "pointer")};
+    user-select: none;
     &:hover{
       text-decoration: ${(props) => (props.disabled ? "none" : "underline")};
     }
    `;
 
-const BlueLinkButton = ({ text, onClick, disabled }) => {
+const BlueLinkButton = ({ text, onClick, disabled, padding = "10px" }) => {
   return (
     <MyButtonContainer>
       <MyButton
+        style={{ buttonPadding: padding }}
         disabled={disabled}
         onClick={(e) => {
           if (disabled) {

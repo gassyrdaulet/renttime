@@ -330,9 +330,12 @@ function Orders() {
         noEscape={createNewOrderLoading}
       >
         <CreateNewOrder
-          setCreateOrderModal={setCreateOrderModal}
           createNewOrderLoading={createNewOrderLoading}
           setCreateNewOrderLoading={setCreateNewOrderLoading}
+          next={() => {
+            setCreateOrderModal(false);
+            getAllOrdersCallback();
+          }}
         />
       </Modal>
       <Modal

@@ -10,6 +10,7 @@ import {
   BiSolidCoupon,
   BiMinusCircle,
   BiPen,
+  BiMessageAdd,
 } from "react-icons/bi";
 import styled from "styled-components";
 import { useState, useMemo, useEffect, useCallback } from "react";
@@ -20,6 +21,10 @@ import {
   finishOrder,
   cancelOrder,
   signPhysical,
+  sendLink,
+  deleteDiscount,
+  deletePayment,
+  deleteExtension,
 } from "../api/OrderApi";
 import useAuth from "../hooks/useAuth";
 import moment from "moment";
@@ -33,6 +38,9 @@ import ConfirmModal from "../components/ConfirmModal";
 import Switch from "../components/Switch";
 import CreateDiscountForm from "../components/CreateDiscountForm";
 import CreatePaymentCourierForm from "../components/CreatePaymentCourierForm";
+import BlueLinkButton from "../components/BlueLinkButton";
+import EditDeliveryForm from "../components/EditDeliveryForm";
+import { cancelDelivery } from "../api/DeliveriesApi";
 
 const {
   TARIFF_MOMENT_KEYS,
@@ -100,9 +108,15 @@ function OrderDetails() {
   const [addDeliveryModal, setAddDeliveryModal] = useState(false);
   const [addDiscountModal, setAddDiscountModal] = useState(false);
   const [confirmPhysical, setConfirmPhysical] = useState(false);
+  const [confirmSMS, setConfirmSMS] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [confirmFinish, setConfirmFinish] = useState(false);
   const [isDebtFinish, setIsDebtFinish] = useState(false);
+  const [deleteExtensionModal, setDeleteExtensionModal] = useState({});
+  const [deletePaymentModal, setDeletePaymentModal] = useState({});
+  const [deleteDiscountModal, setDeleteDiscountModal] = useState({});
+  const [cancelDeliveryModal, setCancelDeliveryModal] = useState({});
+  const [editDeliveryModal, setEditDeliveryModal] = useState({});
   const navigate = useNavigate();
   const params = useParams();
   const { token, currency, organizationId } = useAuth();
@@ -114,6 +128,13 @@ function OrderDetails() {
         title: "Получить физ. подпись",
         icon: <BiPen color="#0F589D" size={20} />,
         onClick: () => setConfirmPhysical(true),
+        disabled: orderInfo.finished_date || orderInfo.signed,
+      },
+      {
+        id: 9,
+        title: "Отправить SMS",
+        icon: <BiMessageAdd color="#0F589D" size={20} />,
+        onClick: () => setConfirmSMS(true),
         disabled: orderInfo.finished_date || orderInfo.signed,
       },
       {
@@ -503,6 +524,66 @@ function OrderDetails() {
     getOrderDetails(setIsLoading, token, setOrderInfo, params.id);
   }, [params.id, token]);
 
+  const handleExtensionModal = useCallback((id, value) => {
+    setDeleteExtensionModal((prev) => {
+      const temp = { ...prev };
+      if (temp[id]) {
+        temp[id] = value;
+        return temp;
+      }
+      temp[id] = value;
+      return temp;
+    });
+  }, []);
+
+  const handlePaymentModal = useCallback((id, value) => {
+    setDeletePaymentModal((prev) => {
+      const temp = { ...prev };
+      if (temp[id]) {
+        temp[id] = value;
+        return temp;
+      }
+      temp[id] = value;
+      return temp;
+    });
+  }, []);
+
+  const handleDiscountModal = useCallback((id, value) => {
+    setDeleteDiscountModal((prev) => {
+      const temp = { ...prev };
+      if (temp[id]) {
+        temp[id] = value;
+        return temp;
+      }
+      temp[id] = value;
+      return temp;
+    });
+  }, []);
+
+  const handleEditDeliveryModal = useCallback((id, value) => {
+    setEditDeliveryModal((prev) => {
+      const temp = { ...prev };
+      if (temp[id]) {
+        temp[id] = value;
+        return temp;
+      }
+      temp[id] = value;
+      return temp;
+    });
+  }, []);
+
+  const handleCancelDeliveryModal = useCallback((id, value) => {
+    setCancelDeliveryModal((prev) => {
+      const temp = { ...prev };
+      if (temp[id]) {
+        temp[id] = value;
+        return temp;
+      }
+      temp[id] = value;
+      return temp;
+    });
+  }, []);
+
   useEffect(() => {
     getOrderDetailsCallback();
   }, [getOrderDetailsCallback]);
@@ -547,51 +628,91 @@ function OrderDetails() {
         return "";
       })}
       <OrderInfoPartTitle>История продлений</OrderInfoPartTitle>
+      {orderInfo.extensions?.length === 0 && (
+        <OrderInfoRowValue>Продлений еще не было</OrderInfoRowValue>
+      )}
       {orderInfoSorted.extensions.map((item) => (
         <HistoryItemWrapper key={item.id}>
           <OrderInfoRowTitle
             title={`ID: ${item.userInfo?.id} | ${item.userInfo?.cellphone}`}
           >
-            {moment(item?.date).format("DD.MM.YYYY HH:mm")} -{" "}
+            ID: {item.id} - {moment(item?.date).format("DD.MM.YYYY HH:mm")} -{" "}
             {item?.userInfo?.name} - ID смены: {item?.workshift_id}
           </OrderInfoRowTitle>
           <OrderInfoRowValue>
             {item.renttime} {TARIFF_UNITS_2[orderInfo.tariff]}
           </OrderInfoRowValue>
+          <BlueLinkButton
+            padding="0 0 5px 0"
+            text="Удалить"
+            onClick={() => handleExtensionModal(item.id, true)}
+          />
+          <ConfirmModal
+            visible={deleteExtensionModal[item.id]}
+            setVisible={(v) => handleExtensionModal(item.id, v)}
+            loading={editLoading}
+            title="Удалить продление"
+            question={`Вы уверены что хотите удалить это продление? (ID: ${item.id})`}
+            onConfirm={() =>
+              deleteExtension(setEditloading, token, item.id, () => {
+                setAddExtensionModal(false);
+                getOrderDetailsCallback();
+              })
+            }
+          />
         </HistoryItemWrapper>
       ))}
       <OrderInfoPartTitle>История оплат</OrderInfoPartTitle>
       {orderInfo.payments?.length === 0 && (
         <OrderInfoRowValue>Оплат еще не было</OrderInfoRowValue>
       )}
-      {orderInfoSorted.payments.map((item) => (
-        <HistoryItemWrapper key={item.id}>
-          <OrderInfoRowTitle
-            title={`ID: ${item.userInfo?.id} | ${item.userInfo?.cellphone}`}
-          >
-            {moment(item?.date).format("DD.MM.YYYY HH:mm")} -{" "}
-            {item?.userInfo?.name} - ID смены: {item?.workshift_id}
-          </OrderInfoRowTitle>
-          <OrderInfoRowValue>
-            {item.amount} {CURRENCIES[currency]} (Комиссия: {item.fee}{" "}
-            {CURRENCIES[currency]} - {item.type})
-          </OrderInfoRowValue>
-
-          <OrderInfoRowValue>
-            Подтвержден:{" "}
-            {item.verified
-              ? moment(item.verified_date).format("DD:MM:YYYY HH:mm")
-              : "НЕТ"}
-          </OrderInfoRowValue>
-          <OrderInfoRowValue>
-            Для курьера:{" "}
-            {item.for_courier ? `ID доставки: ${item.delivery_id}` : "НЕТ"}
-          </OrderInfoRowValue>
-          <OrderInfoRowValue>
-            Долг: {item.is_debt ? `ID долга: ${item.debt_id}` : "НЕТ"}
-          </OrderInfoRowValue>
-        </HistoryItemWrapper>
-      ))}
+      {orderInfoSorted.payments.map((item) => {
+        return (
+          <HistoryItemWrapper key={item.id}>
+            <OrderInfoRowTitle
+              title={`ID: ${item.userInfo?.id} | ${item.userInfo?.cellphone}`}
+            >
+              ID: {item.id} - {moment(item?.date).format("DD.MM.YYYY HH:mm")} -{" "}
+              {item?.userInfo?.name} - ID смены: {item?.workshift_id}
+            </OrderInfoRowTitle>
+            <OrderInfoRowValue>
+              {item.amount} {CURRENCIES[currency]} (Комиссия: {item.fee}{" "}
+              {CURRENCIES[currency]} - {item.type})
+            </OrderInfoRowValue>
+            <OrderInfoRowValue>
+              Подтвержден:{" "}
+              {item.verified
+                ? moment(item.verified_date).format("DD:MM:YYYY HH:mm")
+                : "НЕТ"}
+            </OrderInfoRowValue>
+            <OrderInfoRowValue>
+              Для курьера:{" "}
+              {item.for_courier ? `ID доставки: ${item.delivery_id}` : "НЕТ"}
+            </OrderInfoRowValue>
+            <OrderInfoRowValue>
+              Долг: {item.is_debt ? `ID долга: ${item.debt_id}` : "НЕТ"}
+            </OrderInfoRowValue>
+            <BlueLinkButton
+              padding="0 0 5px 0"
+              text="Удалить"
+              onClick={() => handlePaymentModal(item.id, true)}
+            />
+            <ConfirmModal
+              visible={deletePaymentModal[item.id]}
+              setVisible={(v) => handlePaymentModal(item.id, v)}
+              loading={editLoading}
+              title="Удалить оплату"
+              question={`Вы уверены что хотите удалить эту оплату? (ID: ${item.id})`}
+              onConfirm={() =>
+                deletePayment(setEditloading, token, item.id, () => {
+                  setDeletePaymentModal(false);
+                  getOrderDetailsCallback();
+                })
+              }
+            />
+          </HistoryItemWrapper>
+        );
+      })}
       <OrderInfoPartTitle>История скидок</OrderInfoPartTitle>
       {orderInfo.discounts?.length === 0 && (
         <OrderInfoRowValue>Скидок еще не было</OrderInfoRowValue>
@@ -601,13 +722,31 @@ function OrderDetails() {
           <OrderInfoRowTitle
             title={`ID: ${item.userInfo?.id} | ${item.userInfo?.cellphone}`}
           >
-            {moment(item?.date).format("DD.MM.YYYY HH:mm")} -{" "}
+            ID: {item.id} - {moment(item?.date).format("DD.MM.YYYY HH:mm")} -{" "}
             {item?.userInfo?.name} - ID смены: {item?.workshift_id}
           </OrderInfoRowTitle>
           <OrderInfoRowValue>
             {item.amount} {CURRENCIES[currency]}
           </OrderInfoRowValue>
           <OrderInfoRowValue>Причина: {item.reason}</OrderInfoRowValue>
+          <BlueLinkButton
+            padding="0 0 5px 0"
+            text="Удалить"
+            onClick={() => handleDiscountModal(item.id, true)}
+          />
+          <ConfirmModal
+            visible={deleteDiscountModal[item.id]}
+            setVisible={(v) => handleDiscountModal(item.id, v)}
+            loading={editLoading}
+            title="Удалить скидку"
+            question={`Вы уверены что хотите удалить эту скидку? (ID: ${item.id})`}
+            onConfirm={() =>
+              deleteDiscount(setEditloading, token, item.id, () => {
+                setDeleteDiscountModal(false);
+                getOrderDetailsCallback();
+              })
+            }
+          />
         </HistoryItemWrapper>
       ))}
       <OrderInfoPartTitle>Информация о доставке</OrderInfoPartTitle>
@@ -622,6 +761,7 @@ function OrderDetails() {
           <OrderInfoRowTitle
             title={`ID: ${item.userInfo?.id} | ${item.userInfo?.cellphone}`}
           >
+            ID: {item.id} -{" "}
             {moment(item?.created_date).format("DD.MM.YYYY HH:mm")} -{" "}
             {DELIVERY_DIRECTIONS[item.direction]} - {item?.userInfo?.name} - ID
             смены: {item?.workshift_id}
@@ -643,6 +783,50 @@ function OrderDetails() {
             Стоимость доставки для курьера: {item.delivery_price_for_deliver}{" "}
             {CURRENCIES[currency]}
           </OrderInfoRowValue>
+          {(item.status === "new" || item.status === "wfd") && (
+            <div>
+              <BlueLinkButton
+                padding="0 0 5px 0"
+                text="Отредактировать"
+                onClick={() => handleEditDeliveryModal(item.id, true)}
+              />
+              <BlueLinkButton
+                padding="0 0 5px 0"
+                text="Отменить"
+                onClick={() => handleCancelDeliveryModal(item.id, true)}
+              />
+            </div>
+          )}
+          <Modal
+            title={`Редактировать доставку (ID: ${item.id})`}
+            setModalVisible={(v) => handleEditDeliveryModal(item.id, v)}
+            modalVisible={editDeliveryModal[item.id]}
+            noEscape={editLoading || isLoading}
+            onlyByClose={true}
+          >
+            <EditDeliveryForm
+              deliveryInfo={item}
+              isLoading={editLoading}
+              setIsLoading={setEditloading}
+              next={() => {
+                setEditDeliveryModal(false);
+                getOrderDetailsCallback();
+              }}
+            />
+          </Modal>
+          <ConfirmModal
+            visible={cancelDeliveryModal[item.id]}
+            setVisible={(v) => handleCancelDeliveryModal(item.id, v)}
+            loading={editLoading}
+            title="Отмена доставки"
+            question={`Вы уверены что хотите отменить эту доставку? (ID: ${item.id})`}
+            onConfirm={() =>
+              cancelDelivery(setEditloading, token, item.id, () => {
+                setCancelDeliveryModal(false);
+                getOrderDetailsCallback();
+              })
+            }
+          />
         </HistoryItemWrapper>
       ))}
       {orderInfo.archiveDeliveries?.map((item) => (
@@ -650,6 +834,7 @@ function OrderDetails() {
           <OrderInfoRowTitle
             title={`ID: ${item.userInfo?.id} | ${item.userInfo?.cellphone}`}
           >
+            ID: {item.id} -{" "}
             {moment(item?.created_date).format("DD.MM.YYYY HH:mm")} -{" "}
             {DELIVERY_DIRECTIONS[item.direction]} - {item?.userInfo?.name} - ID
             смены: {item?.workshift_id}
@@ -671,6 +856,52 @@ function OrderDetails() {
             Стоимость доставки для курьера: {item.delivery_price_for_deliver}{" "}
             {CURRENCIES[currency]}
           </OrderInfoRowValue>
+          {(item.status === "new" || item.status === "wfd") && (
+            <div>
+              <BlueLinkButton
+                padding="0 0 5px 0"
+                text="Отредактировать"
+                onClick={() => handleEditDeliveryModal(item.id, true)}
+              />
+              <BlueLinkButton
+                padding="0 0 5px 0"
+                text="Отменить"
+                onClick={() => handleCancelDeliveryModal(item.id, true)}
+              />
+            </div>
+          )}
+          <Modal
+            title={`Редактировать доставку (ID: ${item.id})`}
+            setModalVisible={(v) => handleEditDeliveryModal(item.id, v)}
+            modalVisible={editDeliveryModal[item.id]}
+            noEscape={editLoading || isLoading}
+            onlyByClose={true}
+          >
+            <EditDeliveryForm
+              cellphone={orderInfo.clientInfo?.cellphone}
+              address={orderInfo.clientInfo?.address}
+              createDeliveryLoading={editLoading}
+              setCreateDeliveryLoading={setEditloading}
+              orderId={params.id}
+              next={() => {
+                setEditDeliveryModal(false);
+                getOrderDetailsCallback();
+              }}
+            />
+          </Modal>
+          <ConfirmModal
+            visible={cancelDeliveryModal[item.id]}
+            setVisible={(v) => handleCancelDeliveryModal(item.id, v)}
+            loading={editLoading}
+            title="Отмена доставки"
+            question={`Вы уверены что хотите отменить эту доставку? (ID: ${item.id})`}
+            onConfirm={() =>
+              cancelDelivery(setEditloading, token, item.id, () => {
+                setCancelDeliveryModal(false);
+                getOrderDetailsCallback();
+              })
+            }
+          />
         </HistoryItemWrapper>
       ))}
       <Modal
@@ -820,6 +1051,32 @@ function OrderDetails() {
             setConfirmPhysical(false);
             getOrderDetailsCallback();
           })
+        }
+      />
+      <ConfirmModal
+        visible={confirmSMS}
+        setVisible={setConfirmSMS}
+        loading={editLoading}
+        title="Подтвердите действие"
+        question={
+          <div>
+            <p>
+              Вы уверены что хотите отправить СМС с ссылкой на договор этому
+              клиенту?
+            </p>
+          </div>
+        }
+        onConfirm={() =>
+          sendLink(
+            setEditloading,
+            token,
+            orderInfo.id,
+            orderInfo.link_code,
+            () => {
+              setConfirmSMS(false);
+              getOrderDetailsCallback();
+            }
+          )
         }
       />
     </OrderInfoWrapper>

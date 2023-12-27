@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import useAuth from "../hooks/useAuth";
 import { getAllGoods, getAllGroups } from "../api/GoodsApi";
 import ContainerLayout from "../components/ContainerLayout";
@@ -91,7 +91,7 @@ function Goods() {
 
   const sortByOptions = useMemo(() => [{ id: "name", name: "По имени" }], []);
 
-  useEffect(() => {
+  const fetchData = useCallback(() => {
     const params = {
       page,
       pageSize,
@@ -110,11 +110,12 @@ function Goods() {
       setTotalCount,
       setFilteredTotalCount
     );
+    getAllGroups(setGroupsLoading, token, setGroups);
   }, [token, page, pageSize, confirmedSearchText, selectedGroup]);
 
   useEffect(() => {
-    getAllGroups(setGroupsLoading, token, setGroups);
-  }, [token]);
+    fetchData();
+  }, [fetchData]);
 
   useEffect(() => {
     if (searchInputText === "") {
@@ -209,6 +210,10 @@ function Goods() {
           createGoodLoading={createGoodLoading}
           setCreateGoodLoading={setCreateGoodLoading}
           groups={groups}
+          next={() => {
+            setCreateGoodModal(false);
+            fetchData();
+          }}
         />
       </Modal>
       <Modal

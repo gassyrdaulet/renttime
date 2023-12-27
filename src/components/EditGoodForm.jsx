@@ -15,7 +15,7 @@ function EditGoodForm({ isLoading, setLoading, data, next }) {
     {
       id: 0,
       title: "Название",
-      value: data.name ? data.name : "0",
+      value: data.name ? data.name : "",
       name: "name",
       inputMode: "text",
     },

@@ -124,7 +124,7 @@ function PayOffForm({
             <MyInput
               fontSize={11}
               value={
-                deliveryPrices[dataItem.id] ? deliveryPrices[dataItem.id] : ""
+                deliveryPrices[dataItem.id] ? deliveryPrices[dataItem.id] : "0"
               }
               onChange={(e) =>
                 handleDeliveryPricesChange(e.target.value, dataItem.id)
@@ -212,7 +212,7 @@ function PayOffForm({
   const paySum = useMemo(() => {
     const result = { total: 0 };
     for (let delivery of deliveries) {
-      delivery?.payments.forEach((payment) => {
+      delivery?.payments?.forEach((payment) => {
         result.total += payment.amount;
         if (result[payment.type]) {
           return (result[payment.type] += payment.amount);
@@ -228,6 +228,16 @@ function PayOffForm({
   const goodsToReturn = useMemo(() => {
     const goods = [];
     for (let delivery of deliveries) {
+      if (delivery.direction === "there") {
+        if (!delivery.cancelled) {
+          continue;
+        }
+      }
+      if (delivery.direction === "here") {
+        if (delivery.cancelled) {
+          continue;
+        }
+      }
       delivery.orderInfo?.orderGoods.forEach((orderGood) => {
         for (let good of goods) {
           if (good === orderGood.specie.id) {
@@ -316,6 +326,7 @@ function PayOffForm({
             );
           })}
           <TotalTitle>Курьер должен отдать товары: </TotalTitle>
+          {goodsToReturn.length === 0 && <p>Нет</p>}
           {goodsToReturn.map((good, index) => (
             <p key={good.specieId}>
               {index + 1}. {String(good.specieCode).padStart(10, "0")}

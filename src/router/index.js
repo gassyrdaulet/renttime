@@ -12,6 +12,7 @@ import OrderDetails from "../pages/OrderDetails";
 import Deliveries from "../pages/Deliveries";
 import DeliveryDetails from "../pages/DeliveryDetails";
 import Settings from "../pages/Settings";
+import Clients from "../pages/Clients";
 
 export const userRoutes = [
   { path: "/main", element: <Main></Main> },
@@ -25,6 +26,7 @@ export const userRoutes = [
   { path: "/orders/:group/:page/:id", element: <OrderDetails></OrderDetails> },
   { path: "/deliveries/:group/:page", element: <Deliveries></Deliveries> },
   { path: "/settings/:group", element: <Settings></Settings> },
+  { path: "/clients/:page", element: <Clients></Clients> },
   {
     path: "/deliveries/:group/:page/:id",
     element: <DeliveryDetails></DeliveryDetails>,

@@ -88,6 +88,8 @@ function Header() {
         name: "КЛИЕНТЫ",
         icon: <FaUsers />,
         id: 5,
+        onClick: () => navigate("/clients/1"),
+        path: "/clients",
       },
       {
         name: "ОТЧЕТЫ",

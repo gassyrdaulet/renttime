@@ -192,35 +192,6 @@ export const newDiscount = async (
     });
 };
 
-export const newDelivery = async (
-  setLoading,
-  token,
-  order_id,
-  deliveryData,
-  next = () => {}
-) => {
-  setLoading(true);
-  axiosNT
-    .post(
-      `/api/orders/newdelivery`,
-      { order_id, ...deliveryData },
-      {
-        headers: { Authorization: "Bearer " + token },
-      }
-    )
-    .then(() => {
-      toast.success("Новая доставка успешно создана", { draggable: false });
-      next();
-    })
-    .catch((e) => {
-      const errMsg = e?.response?.data?.message;
-      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
-    })
-    .finally(() => {
-      setLoading(false);
-    });
-};
-
 export const finishOrder = async (
   setLoading,
   token,
@@ -278,6 +249,38 @@ export const cancelOrder = async (
     });
 };
 
+export const sendLink = async (
+  setLoading,
+  token,
+  order_id,
+  link_code,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .post(
+      `/api/orders/sendlink`,
+      {
+        order_id,
+        link_code,
+      },
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    .then(() => {
+      toast.success("СМС ссылка успешно отправлен", { draggable: false });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
 export const signPhysical = async (
   setLoading,
   token,
@@ -298,6 +301,76 @@ export const signPhysical = async (
       toast.success("Физическая подпись успешно получена", {
         draggable: false,
       });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const deleteExtension = async (
+  setLoading,
+  token,
+  id,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .delete(`/api/orders/deleteextension`, {
+      params: { id },
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      toast.success("Продление успешно удалено", { draggable: false });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const deleteDiscount = async (
+  setLoading,
+  token,
+  id,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .delete(`/api/orders/deletediscount`, {
+      params: { id },
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      toast.success("Скидка успешно удалена", { draggable: false });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const deletePayment = async (setLoading, token, id, next = () => {}) => {
+  setLoading(true);
+  axiosNT
+    .delete(`/api/orders/deletepayment`, {
+      params: { id },
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      toast.success("Оплата успешно удалена", { draggable: false });
       next();
     })
     .catch((e) => {

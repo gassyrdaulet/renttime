@@ -78,8 +78,8 @@ function ClientPicker({
       >
         <CreateNewClient
           next={() => setCreateNewClientModal(false)}
-          createNewClientLoading={createNewClientLoading}
-          setCreateNewClientLoading={setCreateNewClientLoading}
+          isLoading={createNewClientLoading}
+          setIsLoading={setCreateNewClientLoading}
         />
       </Modal>
     </div>

@@ -296,7 +296,7 @@ function DeliveryDetails() {
         visible={confirmIssueModal}
         loading={editLoading || isLoading}
         onlyByClose={true}
-        question={`Осуществляя выдачу этой доставки вы подтверждаете что вы получили необходимую сумму: ${paySum.total} ${CURRENCIES[currency]}`}
+        question={`Осуществляя выдачу этой доставки вы подтверждаете что вы выдали товар и получили необходимую сумму: ${paySum.total} ${CURRENCIES[currency]}`}
         onConfirm={() =>
           issueDelivery(setEditloading, token, params.id, () => {
             setConfirmIssueModal(false);
@@ -310,7 +310,7 @@ function DeliveryDetails() {
         visible={confirmRefuseModal}
         loading={editLoading || isLoading}
         onlyByClose={true}
-        question={`Вы уверены что хотите отказаться от этой доставки? После подтверждения эта заявка окажется в новых доставках`}
+        question={`Вы уверены что хотите отказаться от этой доставки? После подтверждения эта заявка окажется в новых доставках.`}
         onConfirm={() =>
           refuseDelivery(setEditloading, token, params.id, () => {
             setConfirmRefuseModal(false);

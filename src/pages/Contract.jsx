@@ -89,6 +89,7 @@ const ContractItemQR = styled.div`
   left: ${(props) => props.style?.itemLeft}px;
   min-width: ${(props) => props.style?.itemWidth}px;
   max-width: ${(props) => props.style?.itemWidth}px;
+  height: 55px;
   max-height: 55px;
   & > * {
     margin-right: 5px;
@@ -220,7 +221,11 @@ function Contract() {
   }, [actTemplate, contractTemplate, orderData, orgData]);
 
   useEffect(() => {
-    if (orderData && Object.keys(orderData).length !== 0) {
+    if (
+      orderData &&
+      Object.keys(orderData).length !== 0 &&
+      orderData.sign_type === "remote"
+    ) {
       if (orderData.signed) {
         const qrLink = QRCode(0, "H");
         qrLink.addData(
@@ -635,7 +640,7 @@ function Contract() {
             inputMode="numeric"
           />
           <BlueLinkButton
-            text="Отправить код еще раз?"
+            text="Отправить СМС код"
             disabled={sendSMSLoading || confrimLoading}
             onClick={(e) => {
               e.preventDefault();

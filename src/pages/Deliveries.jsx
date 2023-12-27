@@ -246,7 +246,7 @@ function Deliveries() {
         title: "Отправить",
         icon: <BiPaperPlane color="#0F589D" size={20} />,
         onClick: () => setSendCourierModal(true),
-        disabled: Object.keys(marked).length === 0,
+        disabled: Object.keys(marked).length === 0 || selectedGroup !== "new",
       },
       {
         id: 1,

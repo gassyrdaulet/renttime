@@ -5,7 +5,6 @@ import styled from "styled-components";
 import Select from "./Select";
 import { createNewSpecie } from "../api/GoodsApi";
 import useAuth from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
 import config from "../config/config.json";
 
 const { SPECIE_STATUSES } = config;
@@ -56,6 +55,7 @@ function CreateSpecieForm({
   createSpecieLoading,
   setCreateSpecieLoading,
   good_id,
+  next,
 }) {
   const [inputs, setInputs] = useState([
     {
@@ -70,7 +70,6 @@ function CreateSpecieForm({
     },
   ]);
   const { token } = useAuth();
-  const navigate = useNavigate();
   const [status, setStatus] = useState("available");
 
   const options = useMemo(() => {
@@ -145,9 +144,7 @@ function CreateSpecieForm({
                 status,
                 good_id,
               },
-              () => {
-                navigate(0);
-              }
+              next
             );
           }}
         />

@@ -35,14 +35,17 @@ function ConfirmModal({
             text="Нет"
             color={{ default: "#f45e42", dark: "#e84e35" }}
             disabled={loading}
-            onClick={() => setVisible(false)}
+            onClick={(e) => {
+              e.preventDefault();
+              setVisible(false);
+            }}
           />
           <MyButton
             text="Да"
             color={{ default: "#85c442", dark: "#7ab835" }}
             disabled={loading}
-            onClick={() => {
-              onConfirm();
+            onClick={(e) => {
+              onConfirm(e);
             }}
           />
         </ConfirmButtonsContainer>

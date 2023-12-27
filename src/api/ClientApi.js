@@ -20,6 +20,25 @@ export const createNewClientKZ = async (setLoading, token, data, next) => {
     });
 };
 
+export const editClientKZ = async (setLoading, token, data, next) => {
+  setLoading(true);
+  axiosNT
+    .post(`/api/clients/editclientkz`, data, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      next();
+      toast.success("Пользователь успешно отредактирован");
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
 export const searchClientKZ = async (
   setLoading,
   token,
@@ -49,7 +68,7 @@ export const getClientByIdKZ = async (
   token,
   setData,
   client_id,
-  next
+  next = () => {}
 ) => {
   setLoading(true);
   axiosNT
@@ -60,6 +79,33 @@ export const getClientByIdKZ = async (
     .then(({ data }) => {
       setData(data);
       next();
+    })
+    .catch((e) => {
+      console.log(e);
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const getAllClients = async (
+  setLoading,
+  token,
+  setClients,
+  params,
+  setFilteredTotalCount
+) => {
+  setLoading(true);
+  axiosNT
+    .get(`/api/clients/all`, {
+      params,
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(({ data }) => {
+      setClients(data.clients);
+      setFilteredTotalCount(data.filteredTotalCount);
     })
     .catch((e) => {
       const errMsg = e?.response?.data?.message;

@@ -11,6 +11,7 @@ import MyTextarea from "./MyTextarea";
 import MyButton from "./MyButton";
 import useAuth from "../hooks/useAuth";
 import { createNewOrder } from "../api/OrderApi";
+import Switch from "./Switch";
 
 const {
   DEFAULT_TARIFF_VALUE,
@@ -27,7 +28,7 @@ const MainWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 90vw;
-  height: 80vh;
+  height: 75vh;
   max-width: 850px;
 `;
 const InputsContainer = styled.div`
@@ -126,9 +127,9 @@ const DeliveryTitle = styled.p`
 `;
 
 function CreateNewOrder({
-  setCreateOrderModal,
   createNewOrderLoading,
   setCreateNewOrderLoading,
+  next = () => {},
 }) {
   const { currency, token } = useAuth();
   const [pickedGoods, setPickedGoods] = useState([]);
@@ -148,6 +149,7 @@ function CreateNewOrder({
   );
   const [forgiveLateness, setForgiveLateness] = useState(0);
   const [discount, setDiscount] = useState(0);
+  const [sendSMS, setSendSMS] = useState(false);
   const [discountReason, setDiscountReason] = useState("");
   const [discountType, setDiscountType] = useState(0);
   const [comment, setComment] = useState("");
@@ -298,11 +300,17 @@ function CreateNewOrder({
     if (deliveryThereEnable) {
       const deliveryThereObj = {};
       deliveryThere.forEach((item) => (deliveryThereObj[item.id] = item.value));
+      if (!deliveryThereObj.comment) {
+        delete deliveryThereObj.comment;
+      }
       data.deliveryThere = deliveryThereObj;
     }
     if (deliveryHereEnable) {
       const deliveryHereObj = {};
       deliveryHere.forEach((item) => (deliveryHereObj[item.id] = item.value));
+      if (!deliveryHereObj.comment) {
+        delete deliveryHereObj.comment;
+      }
       data.deliveryHere = deliveryHereObj;
     }
     if (comment) {
@@ -314,6 +322,7 @@ function CreateNewOrder({
     if (pickedGoods.length > 0) {
       data.goods = pickedGoods.map((item) => ({ id: item.specie.id }));
     }
+    data.sendSMS = sendSMS;
     data.client = selectedClient.id;
     data.renttime = parseInt(renttime);
     data.forgive_lateness_ms =
@@ -321,11 +330,10 @@ function CreateNewOrder({
     data.started_date = moment(startDate).toDate();
     data.discount = totals.discountSum.value;
     data.tariff = tariff;
-    createNewOrder(setCreateNewOrderLoading, token, data, () => {
-      setCreateOrderModal(false);
-    });
+    createNewOrder(setCreateNewOrderLoading, token, data, next);
   }, [
     comment,
+    next,
     deliveryHere,
     deliveryHereEnable,
     deliveryThere,
@@ -339,9 +347,9 @@ function CreateNewOrder({
     tariff,
     totals,
     setCreateNewOrderLoading,
-    setCreateOrderModal,
     token,
     discountReason,
+    sendSMS,
   ]);
 
   useEffect(() => {
@@ -454,6 +462,12 @@ function CreateNewOrder({
               label="Причина скидки"
               max={150}
               placeholder="Без причины"
+            />
+            <Switch
+              label="Отправить СМС"
+              isChecked={sendSMS}
+              setChecked={setSendSMS}
+              disabled={createNewOrderLoading}
             />
           </SignContractHalf>
         </SignContractWrapper>

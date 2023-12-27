@@ -47,12 +47,14 @@ function Card() {
       title: "Редактировать",
       icon: <FaPencilAlt color="#0F589D" size={20} />,
       onClick: () => setEditGoodModal(true),
+      disabled: goodDataLoading,
     },
     {
       id: 2,
       title: "Удалить",
       icon: <FaTrashAlt color="#dd580f" size={20} />,
       onClick: () => setConfirmDeleteModal(true),
+      disabled: goodDataLoading,
     },
   ];
 
@@ -90,8 +92,8 @@ function Card() {
         value: goodData?.id,
       },
       {
-        title: "ID группы",
-        value: goodData?.group_id,
+        title: "Группа",
+        value: goodData?.groupInfo?.name,
       },
       {
         title: "Стоимость компенсации",
@@ -184,8 +186,8 @@ function Card() {
           <div className={cl.Species}>
             {filteredSpecies.map((item) => (
               <SpecieItem
-                deleteButton={true}
-                nextAfterDelete={() => {
+                editButton={true}
+                next={() => {
                   fetchData();
                 }}
                 specieItem={item}
@@ -199,7 +201,6 @@ function Card() {
         )}
       </div>
       <Modal
-        onlyByClose={true}
         title="Создание новой единицы"
         modalVisible={createSpecieModal}
         setModalVisible={setCreateSpecieModal}
@@ -209,6 +210,10 @@ function Card() {
           createSpecieLoading={createSpecieLoading}
           setCreateSpecieLoading={setCreateSpecieLoading}
           good_id={id}
+          next={() => {
+            setCreateSpecieModal(false);
+            fetchData();
+          }}
         />
       </Modal>
       <ConfirmModal

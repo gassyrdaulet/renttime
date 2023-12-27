@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useMemo } from "react";
 
 const InputContainer = styled.div`
-  margin-bottom: 10px;
+  margin: ${(props) => props.style.margin};
   user-select: none;
   width: 100%;
 `;
@@ -60,6 +60,7 @@ const MyInput = ({
   zerofill,
   inputRef,
   unsigned,
+  margin = "0 0 10px 0",
   max = 9999999999,
   onClickRight = () => {},
 }) => {
@@ -71,7 +72,7 @@ const MyInput = ({
   }, [value, zerofill]);
 
   return (
-    <InputContainer>
+    <InputContainer style={{ margin }}>
       <LabelText>{label}</LabelText>
       <InputWrapper>
         <InputField

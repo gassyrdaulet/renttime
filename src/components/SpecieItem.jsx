@@ -2,10 +2,9 @@ import styled from "styled-components";
 import moment from "moment";
 import { useMemo, useState } from "react";
 import config from "../config/config.json";
-import { FaTrashAlt } from "react-icons/fa";
-import ConfirmModal from "./ConfirmModal";
-import { deleteSpecie } from "../api/GoodsApi";
-import useAuth from "../hooks/useAuth";
+import { FaPencilAlt } from "react-icons/fa";
+import Modal from "./Modal";
+import EditSpecieForm from "../components/EditSpecieForm";
 
 const { SPECIE_STATUSES, SPECIE_STATUSES_COLORS } = config;
 
@@ -89,14 +88,13 @@ function SpecieItem({
   specieItem,
   onClick,
   marked,
-  deleteButton,
-  nextAfterDelete,
+  editButton,
+  next,
   cursorType = "pointer",
   editLoading,
   setEditLoading,
 }) {
-  const { token } = useAuth();
-  const [confirmDeleteModal, setConfirmDeleteModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
   const firstHalf = useMemo(
     () => [
       {
@@ -170,33 +168,36 @@ function SpecieItem({
             </SpecieInfo>
           ))}
         </SpecieInfoHalf>
-        {deleteButton && (
+        {editButton && (
           <DeleteButtonWrapper
             onClick={() => {
               if (!editLoading) {
-                setConfirmDeleteModal(true);
+                setEditModal(true);
               }
             }}
           >
             <DeleteButtonIconWrapper>
-              <FaTrashAlt size={14} />
+              <FaPencilAlt size={14} />
             </DeleteButtonIconWrapper>
           </DeleteButtonWrapper>
         )}
       </SpecieInfoWrapper>
-      <ConfirmModal
-        visible={confirmDeleteModal}
-        setVisible={setConfirmDeleteModal}
-        loading={editLoading}
-        title="Подтвердите действие"
-        question={<p>Вы уверены что хотите удалить эту единицу?</p>}
-        onConfirm={() =>
-          deleteSpecie(setEditLoading, token, specieItem.id, () => {
-            setConfirmDeleteModal(false);
-            nextAfterDelete();
-          })
-        }
-      />
+      <Modal
+        modalVisible={editModal}
+        setModalVisible={setEditModal}
+        noEscape={editLoading}
+        title="Редактирование единицы"
+      >
+        <EditSpecieForm
+          isLoading={editLoading}
+          setIsLoading={setEditLoading}
+          specieInfo={specieItem}
+          next={() => {
+            setEditModal(false);
+            next();
+          }}
+        />
+      </Modal>
     </SpecieContainer>
   );
 }

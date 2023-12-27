@@ -72,9 +72,32 @@ export const createNewSpecie = async (
     .post(`/api/goods/newspecie`, specieData, {
       headers: { Authorization: "Bearer " + token },
     })
-    .then(({ data }) => {
-      const msg = data?.message;
-      toast.success(msg ? msg : "Success", { draggable: false });
+    .then(() => {
+      toast.success("Новая единица успешно создана", { draggable: false });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const editSpecie = async (
+  setLoading,
+  token,
+  specieData,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .post(`/api/goods/editspecie`, specieData, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      toast.success("Единица успешно отредактирована", { draggable: false });
       next();
     })
     .catch((e) => {
@@ -249,6 +272,7 @@ export const deleteSpecie = async (
       next();
     })
     .catch((e) => {
+      console.log(e);
       const errMsg = e?.response?.data?.message;
       toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
     })
