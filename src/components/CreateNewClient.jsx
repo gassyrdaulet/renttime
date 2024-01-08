@@ -14,7 +14,7 @@ const { GENDERS, PAPER_AUTHORITY } = config;
 const CreateNewClientWrapper = styled.form`
   width: 85vw;
   max-width: 550px;
-  height: 80vh;
+  height: 70vh;
 `;
 const InputsContainer = styled.div`
   overflow-y: auto;

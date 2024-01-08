@@ -134,7 +134,7 @@ function Orders() {
   const navigate = useNavigate();
 
   const getAllOrdersCallback = useCallback(() => {
-    const params = {
+    const selectParams = {
       page,
       pageSize,
       sortBy,
@@ -142,27 +142,31 @@ function Orders() {
       archive: selectedGroup === 1,
     };
     if (confirmedSearchText) {
-      params.filter = confirmedSearchText;
+      selectParams.filter = confirmedSearchText;
     }
     if (selectedGroup === 1 && !dateRange) {
       return;
     }
+    if (selectParams.page !== parseInt(params.page)) {
+      return;
+    }
     if (dateRange) {
-      params.dateType = dateType;
-      params.firstDate = moment(firstDate).toDate();
-      params.secondDate = moment(secondDate).toDate();
+      selectParams.dateType = dateType;
+      selectParams.firstDate = moment(firstDate).toDate();
+      selectParams.secondDate = moment(secondDate).toDate();
     }
     getAllOrders(
       setOrdersLoading,
       token,
       setOrders,
-      params,
+      selectParams,
       setFilteredTotalCount,
       setTotalCount
     );
   }, [
     page,
     token,
+    params.page,
     pageSize,
     confirmedSearchText,
     sortBy,
@@ -190,8 +194,16 @@ function Orders() {
   useEffect(() => {
     if (selectedGroup === 1) {
       setDateRange(true);
+    } else {
+      setDateRange(false);
     }
   }, [selectedGroup]);
+
+  useEffect(() => {
+    if (!searchInputText) {
+      setConfirmedSearchText("");
+    }
+  }, [searchInputText]);
 
   const controlPanelButtons = useMemo(
     () => [
@@ -234,6 +246,7 @@ function Orders() {
       { id: "id", name: "По ID" },
       { id: "created_date", name: "По дате создания" },
       { id: "started_date", name: "По дате старта" },
+      { id: "planned_date", name: "По дате плана" },
       { id: "finished_date", name: "По дате заврешения" },
     ],
     []

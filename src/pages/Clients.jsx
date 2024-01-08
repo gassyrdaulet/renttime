@@ -14,17 +14,9 @@ import { BsFilterSquareFill } from "react-icons/bs";
 import { useNavigate, useParams } from "react-router-dom";
 import TableLayout from "../components/TableLayout";
 import { getAllClients } from "../api/ClientApi";
-import { BiPencil } from "react-icons/bi";
-import styled from "styled-components";
-import EditClientForm from "../components/EditClientForm";
+import config from "../config/config.json";
 
-const OtherWrapper = styled.div`
-  display: block;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  color: ${(props) => props.disabled && "gray"};
-`;
+const { CURRENCIES } = config;
 
 function Clients() {
   const [clientsLoading, setClientsLoading] = useState(true);
@@ -36,7 +28,6 @@ function Clients() {
   const [confirmedSearchText, setConfirmedSearchText] = useState("");
   const [filteredTotalCount, setFilteredTotalCount] = useState(0);
   const [page, setPage] = useState(1);
-  const [editModalUserId, setEditModalUserId] = useState(0);
   const [pageSize, setPageSize] = useState(
     localStorage.getItem("clientsPageSize")
       ? parseInt(localStorage.getItem("clientsPageSize"))
@@ -52,7 +43,7 @@ function Clients() {
       ? localStorage.getItem("clientsSortOrder")
       : "ASC"
   );
-  const { token } = useAuth();
+  const { token, currency } = useAuth();
   const navigate = useNavigate();
   const params = useParams();
 
@@ -91,7 +82,11 @@ function Clients() {
   );
 
   const sortByOptions = useMemo(
-    () => [{ id: "create_date", name: "По дате создания" }],
+    () => [
+      { id: "create_date", name: "По дате создания" },
+      { id: "second_name", name: "По ФИО" },
+      { id: "debts_sum", name: "По долгам" },
+    ],
     []
   );
 
@@ -104,23 +99,34 @@ function Clients() {
   );
 
   const fetchData = useCallback(() => {
-    const params = {
+    const selectParams = {
       page,
       pageSize,
       sortBy,
       sortOrder,
     };
     if (confirmedSearchText) {
-      params.filter = confirmedSearchText;
+      selectParams.filter = confirmedSearchText;
+    }
+    if (selectParams.page !== parseInt(params.page)) {
+      return;
     }
     getAllClients(
       setClientsLoading,
       token,
       setClients,
-      params,
+      selectParams,
       setFilteredTotalCount
     );
-  }, [token, page, pageSize, confirmedSearchText, sortBy, sortOrder]);
+  }, [
+    token,
+    params.page,
+    page,
+    pageSize,
+    confirmedSearchText,
+    sortBy,
+    sortOrder,
+  ]);
 
   useEffect(() => {
     fetchData();
@@ -201,67 +207,34 @@ function Clients() {
         type: "text",
       },
       {
-        id: "editUserButton",
+        id: "debtsSum",
         style: {
-          fixedMinWidth: "90px",
-          fixedJustWidth: "90px",
-          fixedMaxWidth: "90px",
+          fixedMinWidth: "100px",
+          fixedJustWidth: "100px",
+          fixedMaxWidth: "100px",
         },
-        dataStyle: { dataAlign: "center", cursorType: "pointer" },
-        title: "РЕДАКТИРОВАТЬ",
-        type: "other",
-        children: ({ dataItem }) => {
-          return (
-            <OtherWrapper
-              disabled={editLoading}
-              onClick={() => {
-                if (!editLoading && editModalUserId !== dataItem.id) {
-                  setEditModalUserId(dataItem.id);
-                }
-              }}
-            >
-              <BiPencil size={25} color="#2786f2" />
-              <Modal
-                modalVisible={editModalUserId === dataItem.id}
-                setModalVisible={(v) => {
-                  if (v) {
-                    setEditModalUserId(dataItem.id);
-                  } else {
-                    setEditModalUserId();
-                  }
-                }}
-                noEscape={editLoading}
-                title="Редактирование клиента"
-              >
-                <EditClientForm
-                  isLoading={editLoading}
-                  setIsLoading={setEditLoading}
-                  clientId={dataItem.id}
-                  next={() => {
-                    setEditModalUserId();
-                    fetchData();
-                  }}
-                />
-              </Modal>
-            </OtherWrapper>
-          );
-        },
+        title: "Сумма долга",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
       },
     ],
-    [editLoading, editModalUserId, fetchData]
+    []
   );
   const dataForTable = useMemo(
     () =>
-      clients.map((item, index) => ({
-        id: item.id,
-        index: index + 1 + (page - 1) * pageSize,
-        cellphone: item.cellphone,
-        paper_person_id: item.paper_person_id,
-        fullname: `${item.second_name} ${item.name} ${
-          item?.father_name ? item.father_name : ""
-        }`,
-      })),
-    [clients, page, pageSize]
+      clients.map((item, index) => {
+        return {
+          id: item.id,
+          index: index + 1 + (page - 1) * pageSize,
+          cellphone: item.cellphone,
+          paper_person_id: item.paper_person_id,
+          fullname: `${item.second_name} ${item.name} ${
+            item?.father_name ? item.father_name : ""
+          }`,
+          debtsSum: `${item.debts_sum} ${CURRENCIES[currency]}`,
+        };
+      }),
+    [clients, page, pageSize, currency]
   );
 
   const leftContent = (
@@ -298,7 +271,11 @@ function Clients() {
           <Loading which="gray" />
         </div>
       ) : (
-        <TableLayout headers={headers} data={dataForTable} />
+        <TableLayout
+          headers={headers}
+          data={dataForTable}
+          onClickRow={(data) => navigate(`/clients/${page}/${data.id}`)}
+        />
       )}
       <Modal
         onlyByClose={true}

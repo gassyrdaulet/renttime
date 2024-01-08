@@ -13,6 +13,8 @@ import Deliveries from "../pages/Deliveries";
 import DeliveryDetails from "../pages/DeliveryDetails";
 import Settings from "../pages/Settings";
 import Clients from "../pages/Clients";
+import ClientDetails from "../pages/ClientDetails";
+import Species from "../pages/Species";
 
 export const userRoutes = [
   { path: "/main", element: <Main></Main> },
@@ -20,13 +22,15 @@ export const userRoutes = [
     path: "/contract/:organization_id/:order_id/:contract_code",
     element: <Contract></Contract>,
   },
-  { path: "/cards/:group/:page", element: <Goods></Goods> },
-  { path: "/cards/:group/:page/:id", element: <Card></Card> },
+  { path: "/goods/cards/:group/:page", element: <Goods></Goods> },
+  { path: "/goods/cards/:group/:page/:id", element: <Card></Card> },
+  { path: "/goods/species/:group/:page", element: <Species></Species> },
   { path: "/orders/:group/:page", element: <Orders></Orders> },
   { path: "/orders/:group/:page/:id", element: <OrderDetails></OrderDetails> },
   { path: "/deliveries/:group/:page", element: <Deliveries></Deliveries> },
   { path: "/settings/:group", element: <Settings></Settings> },
   { path: "/clients/:page", element: <Clients></Clients> },
+  { path: "/clients/:page/:id", element: <ClientDetails></ClientDetails> },
   {
     path: "/deliveries/:group/:page/:id",
     element: <DeliveryDetails></DeliveryDetails>,

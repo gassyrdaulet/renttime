@@ -12,6 +12,7 @@ function Groups({
   switchLoading,
   defaultOptions,
   onGroupChange = () => {},
+  next = () => {},
 }) {
   const navigate = useNavigate();
 
@@ -52,6 +53,7 @@ function Groups({
                 }}
                 id={item.id}
                 name={item.name}
+                next={next}
               />
             );
           })

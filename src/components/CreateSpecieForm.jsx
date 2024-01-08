@@ -66,7 +66,7 @@ function CreateSpecieForm({
       inputMode: "numeric",
       integer: true,
       unsigned: true,
-      zerofill: true,
+      zerofill: 10,
     },
   ]);
   const { token } = useAuth();

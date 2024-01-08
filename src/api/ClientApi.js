@@ -78,10 +78,34 @@ export const getClientByIdKZ = async (
     })
     .then(({ data }) => {
       setData(data);
-      next();
+      next(data);
     })
     .catch((e) => {
       console.log(e);
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const deleteClient = async (
+  setLoading,
+  token,
+  client_id,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .delete(`/api/clients/deleteclient`, {
+      params: { client_id },
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      next();
+    })
+    .catch((e) => {
       const errMsg = e?.response?.data?.message;
       toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
     })
@@ -106,6 +130,48 @@ export const getAllClients = async (
     .then(({ data }) => {
       setClients(data.clients);
       setFilteredTotalCount(data.filteredTotalCount);
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const createDebt = async (setLoading, token, body, next) => {
+  setLoading(true);
+  axiosNT
+    .post(`/api/clients/newdebt`, body, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const closeDebt = async (setLoading, token, debt_id, next) => {
+  setLoading(true);
+  axiosNT
+    .post(
+      `/api/clients/closedebt`,
+      {},
+      {
+        params: { debt_id },
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    .then(() => {
+      toast.success("Долг успешно закрыть", { draggable: false });
+      next();
     })
     .catch((e) => {
       const errMsg = e?.response?.data?.message;

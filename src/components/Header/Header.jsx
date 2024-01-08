@@ -12,6 +12,8 @@ import {
   FaUserCog,
   FaCashRegister,
   FaDoorOpen,
+  FaCartPlus,
+  FaListOl,
 } from "react-icons/fa";
 import { GoTriangleDown } from "react-icons/go";
 import Loading from "../Loading";
@@ -62,8 +64,24 @@ function Header() {
         name: "ТОВАРЫ",
         icon: <FaShoppingCart />,
         id: 2,
-        onClick: () => navigate("/cards/-2/1"),
-        path: "/cards",
+        onClick: () => setActiveDropMenu(2),
+        menuItems: [
+          {
+            id: 0,
+            icon: <FaCartPlus />,
+            name: "Все карточки",
+            path: "/goods/cards",
+            onClick: () => navigate("/goods/cards/-2/1"),
+          },
+          {
+            id: 1,
+            icon: <FaListOl />,
+            name: "Все единицы",
+            path: "/goods/species",
+            onClick: () => navigate("/goods/species/all/1"),
+          },
+        ],
+        path: "/goods",
       },
       {
         name: "ДОСТАВКИ",

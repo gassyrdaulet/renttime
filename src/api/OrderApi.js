@@ -269,7 +269,7 @@ export const sendLink = async (
       }
     )
     .then(() => {
-      toast.success("СМС ссылка успешно отправлен", { draggable: false });
+      toast.success("СМС ссылка успешно отправлена", { draggable: false });
       next();
     })
     .catch((e) => {

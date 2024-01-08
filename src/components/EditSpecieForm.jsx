@@ -19,7 +19,7 @@ function EditSpecieForm({ isLoading, setIsLoading, specieInfo, next }) {
       inputMode: "numeric",
       integer: true,
       unsigned: true,
-      zerofill: true,
+      zerofill: 10,
     },
   ]);
   const { token } = useAuth();
@@ -49,16 +49,6 @@ function EditSpecieForm({ isLoading, setIsLoading, specieInfo, next }) {
   const buttons = useMemo(
     () => [
       {
-        id: 0,
-        text: "Удалить",
-        loading: String(isLoading),
-        disabled: isLoading,
-        onClick: (e) => {
-          e.preventDefault();
-          setDeleteModal(true);
-        },
-      },
-      {
         id: 1,
         text: "Сохранить",
         type: "submit",
@@ -75,6 +65,16 @@ function EditSpecieForm({ isLoading, setIsLoading, specieInfo, next }) {
           }
           specieData.specie_id = specieInfo.id;
           editSpecie(setIsLoading, token, specieData, next);
+        },
+      },
+      {
+        id: 0,
+        text: "Удалить",
+        loading: String(isLoading),
+        disabled: isLoading,
+        onClick: (e) => {
+          e.preventDefault();
+          setDeleteModal(true);
         },
       },
     ],

@@ -71,7 +71,6 @@ const TableHeaderColumn = styled.th`
 `;
 const TableColumn = styled.td`
   border: 1px solid rgb(212, 212, 212);
-  background-color: rgb(255, 255, 255);
   overflow: hidden;
   padding: 5px;
   text-align: ${(props) => props.style?.dataAlign};
@@ -82,6 +81,8 @@ const TableColumn = styled.td`
   padding-bottom: 20px;
   position: ${(props) =>
     props.style?.columnPosition ? props.style?.columnPosition : "static"};
+  background-color: ${(props) =>
+    props.style?.columnPosition ? "rgb(245, 245, 245)" : "transparent"};
   left: ${(props) => (props.style?.left ? props.style?.left : "0")}px;
   z-index: 1;
   &::before {
@@ -107,12 +108,12 @@ const TableColumn = styled.td`
 `;
 
 function TableLayout({
-  headers,
+  headers = [],
   fontSize = 13,
-  data,
+  data = [],
   marked,
   setMarked,
-  marking,
+  marking = false,
   onClickRow = () => {},
 }) {
   const allMarked = useMemo(() => {

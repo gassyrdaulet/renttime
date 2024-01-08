@@ -2,7 +2,12 @@ import Modal from "./Modal";
 import MyButton from "./MyButton";
 import { BiSolidChevronLeft, BiPlusCircle, BiSearch } from "react-icons/bi";
 import styled from "styled-components";
-import { getAllGoods, getAllGroups, getSpecies } from "../api/GoodsApi";
+import {
+  getAllGoods,
+  getAllGroups,
+  getSpecies,
+  searchSpecie,
+} from "../api/GoodsApi";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import useAuth from "../hooks/useAuth";
 import SearchInput from "./SearchInput";
@@ -14,8 +19,10 @@ import SpecieWithImage from "./SpecieWithImage";
 import VolumeSlider from "./Volume";
 import { FaTrash } from "react-icons/fa";
 import config from "../config/config.json";
+import AsyncSelect from "./AsyncSelect";
+import debounce from "lodash.debounce";
 
-const { SPECIE_STATUSES_AVAILABLE } = config;
+const { SPECIE_STATUSES_AVAILABLE, SPECIE_STATUSES } = config;
 const pageSize = 10;
 
 const AddGoodButtons = styled.div`
@@ -45,6 +52,11 @@ const SpeciesWithImages = styled.div`
     height: 0;
   }
   margin-bottom: 10px;
+`;
+const SearchWrapper = styled.div`
+  width: 70vw;
+  max-width: 500px;
+  margin: 0 20px;
 `;
 const SpecieWithImageWrapper = styled.div`
   display: flex;
@@ -81,7 +93,7 @@ const AddGoodBackButton = styled.div`
 const AddGoodBackButtonText = styled.p`
   text-align: center;
 `;
-const AddGoodSearch = styled.div`
+const AddGoodSearch = styled.form`
   display: flex;
   align-items: center;
   margin: 5px;
@@ -163,6 +175,8 @@ function GoodPicker({ tariff, pickedGoods, setPickedGoods, disabled }) {
   const [confirmedSearchText, setConfirmedSearchText] = useState("");
   const [AddGoodModalTitle, setAddGoodModalTitle] = useState("Выберите товары");
   const [loading, setLoading] = useState(false);
+  const [searchSpecieLoading, setSearchSpecieLoading] = useState(false);
+  const [species, setSpecies] = useState([]);
   const [showGroups, setShowGroups] = useState(true);
   const [showGoods, setShowGoods] = useState(false);
   const [showSpecies, setShowSpecies] = useState(false);
@@ -218,22 +232,41 @@ function GoodPicker({ tariff, pickedGoods, setPickedGoods, disabled }) {
     setConfirmedSearchText(searchText);
   }, [searchText, selectedGood, selectedGroup]);
 
-  const handleOnSpecieClick = useCallback(
-    (specie) => {
-      if (!SPECIE_STATUSES_AVAILABLE?.[specie.status]) return;
+  const addGood = useCallback(
+    (good) => {
+      if (!SPECIE_STATUSES_AVAILABLE?.[good.specie.status]) {
+        return;
+      }
       setPickedGoods((prev) => {
         const temp = [...prev];
         for (let tempItem of temp) {
-          if (tempItem.specie.id === specie.id) {
-            const newTemp = temp.filter((item) => item.specie.id !== specie.id);
+          if (tempItem.specie.id === good.specie.id) {
+            const newTemp = temp.filter(
+              (item) => item.specie.id !== good.specie.id
+            );
             return newTemp;
           }
         }
-        temp.push({ specie, good: selectedGood });
+        temp.push(good);
         return temp;
       });
     },
-    [selectedGood, setPickedGoods]
+    [setPickedGoods]
+  );
+
+  const handleOnSpecieClick = useCallback(
+    (specie) => {
+      addGood({ specie, good: selectedGood });
+    },
+    [selectedGood, addGood]
+  );
+
+  const handleOnAsyncResultClick = useCallback(
+    (specie) => {
+      console.log(specie);
+      addGood({ specie, good: specie.goodInfo });
+    },
+    [addGood]
   );
 
   const handleDeletePickedGood = useCallback(
@@ -250,7 +283,7 @@ function GoodPicker({ tariff, pickedGoods, setPickedGoods, disabled }) {
 
   const fetchGoods = useCallback(() => {
     if (token) {
-      const params = {
+      const selectParams = {
         page,
         pageSize,
         sortBy: "name",
@@ -258,13 +291,13 @@ function GoodPicker({ tariff, pickedGoods, setPickedGoods, disabled }) {
         group_id: selectedGroup.id ? selectedGroup.id : -2,
       };
       if (confirmedSearchText) {
-        params.filter = confirmedSearchText;
+        selectParams.filter = confirmedSearchText;
       }
       getAllGoods(
         setLoading,
         token,
         setFetchedGoods,
-        params,
+        selectParams,
         setTotalCount,
         setFilteredTotalCount
       );
@@ -352,6 +385,36 @@ function GoodPicker({ tariff, pickedGoods, setPickedGoods, disabled }) {
     }
   }, [searchText]);
 
+  const debouncedSearchSpecie = debounce((filter) => {
+    if (!filter) {
+      setSpecies([]);
+      return;
+    }
+    searchSpecie(setSearchSpecieLoading, token, filter, setSpecies);
+  }, 300);
+
+  const formattedSpecies = useMemo(
+    () =>
+      species.map((item) => {
+        let alreadyThere = false;
+        for (let pickedGood of pickedGoods) {
+          if (pickedGood.specie.id === item.id) {
+            alreadyThere = true;
+            break;
+          }
+        }
+        return {
+          id: item.id,
+          value: `${String(item.code).padStart(10, "0")} - ${
+            item.goodInfo.name
+          } ${SPECIE_STATUSES[item.status]} - (ID: ${item.id})`,
+          specie: item,
+          disabled: !SPECIE_STATUSES_AVAILABLE?.[item.status] || alreadyThere,
+        };
+      }),
+    [species, pickedGoods]
+  );
+
   return (
     <div>
       <VolumeSlider
@@ -407,7 +470,6 @@ function GoodPicker({ tariff, pickedGoods, setPickedGoods, disabled }) {
             </AddGoodButtons>
           </SpecieWithImageWrapper>
         )}
-
         {pickedGoods.map((item) => (
           <SpecieWithImageWrapper key={item.specie.id}>
             <SpecieWithImage
@@ -424,7 +486,6 @@ function GoodPicker({ tariff, pickedGoods, setPickedGoods, disabled }) {
         title={AddGoodModalTitle}
         modalVisible={addGoodModal}
         setModalVisible={setAddGoodModal}
-        onlyByClose={true}
       >
         <AddGoodWrapper>
           <div>
@@ -437,12 +498,16 @@ function GoodPicker({ tariff, pickedGoods, setPickedGoods, disabled }) {
                 maxLetters={50}
               />
               <MyButton
+                type="submit"
                 disabled={loading}
                 text={<BiSearch size={18} />}
                 margin="0"
                 borderBLRadius="0"
                 borderTLRadius="0"
-                onClick={handleSearchButton}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSearchButton();
+                }}
               />
             </AddGoodSearch>
           </div>
@@ -528,7 +593,22 @@ function GoodPicker({ tariff, pickedGoods, setPickedGoods, disabled }) {
         modalVisible={addGoodByCodeModal}
         setModalVisible={setAddGoodByCodeModal}
         onlyByClose={true}
-      ></Modal>
+      >
+        <SearchWrapper>
+          <AsyncSelect
+            disabled={false}
+            loading={searchSpecieLoading}
+            placeholder="Поиск единиц..."
+            selectedOption={0}
+            setSelectedOption={(i) => {
+              handleOnAsyncResultClick(i.specie);
+              setAddGoodByCodeModal(false);
+            }}
+            onChangeText={debouncedSearchSpecie}
+            options={formattedSpecies}
+          />
+        </SearchWrapper>
+      </Modal>
     </div>
   );
 }

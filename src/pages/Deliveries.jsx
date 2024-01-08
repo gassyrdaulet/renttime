@@ -130,7 +130,7 @@ function Deliveries() {
 
   const getDeliveriesCallback = useCallback(() => {
     setMarked({});
-    const params = {
+    const selectParams = {
       page,
       pageSize,
       sortBy,
@@ -139,24 +139,27 @@ function Deliveries() {
       archive: selectedGroup === "archive",
     };
     if (confirmedSearchText) {
-      params.filter = confirmedSearchText;
+      selectParams.filter = confirmedSearchText;
     }
     if (selectedGroup === "archive" && !dateRange) {
       return;
     }
+    if (selectParams.page !== parseInt(params.page)) {
+      return;
+    }
     if (dateRange) {
-      params.dateType = dateType;
-      params.firstDate = moment(firstDate).toDate();
-      params.secondDate = moment(secondDate).toDate();
+      selectParams.dateType = dateType;
+      selectParams.firstDate = moment(firstDate).toDate();
+      selectParams.secondDate = moment(secondDate).toDate();
     }
     if (courierId) {
-      params.courier_id = courierId;
+      selectParams.courier_id = courierId;
     }
     getDeliveries(
       setDeliveriesLoading,
       token,
       setDeliveries,
-      params,
+      selectParams,
       setFilteredTotalCount,
       setTotalCount
     );
@@ -164,6 +167,7 @@ function Deliveries() {
     page,
     token,
     pageSize,
+    params.page,
     confirmedSearchText,
     sortBy,
     sortOrder,
@@ -191,6 +195,8 @@ function Deliveries() {
   useEffect(() => {
     if (selectedGroup === "archive") {
       setDateRange(true);
+    } else {
+      setDateRange(false);
     }
   }, [selectedGroup]);
 

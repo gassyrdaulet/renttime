@@ -628,17 +628,7 @@ function Contract() {
         onlyByClose={true}
       >
         <ConfirmContractWrapper>
-          <CenterText>
-            Подтвердите код, высланный вам по СМС на номер{" "}
-            {orderData.client_cellphone}
-          </CenterText>
-          <MyInput
-            label="Код *"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            disabled={confrimLoading}
-            inputMode="numeric"
-          />
+          <CenterText>1. Нажмите на кнопку отправить код</CenterText>
           <BlueLinkButton
             text="Отправить СМС код"
             disabled={sendSMSLoading || confrimLoading}
@@ -652,6 +642,18 @@ function Contract() {
               );
             }}
           />
+          <CenterText>
+            2. Затем подтвердите код, высланный вам по СМС на номер{" "}
+            {orderData.client_cellphone}
+          </CenterText>
+          <MyInput
+            label="Код *"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            disabled={confrimLoading}
+            inputMode="numeric"
+          />
+
           <MyButton
             text="Подтвердить"
             onClick={() => {

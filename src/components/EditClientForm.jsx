@@ -1,6 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import MyInput from "./MyInput";
-import MyButton from "./MyButton";
 import Select from "./Select";
 import DatePicker from "./DatePicker";
 import { editClientKZ, getClientByIdKZ } from "../api/ClientApi";
@@ -74,6 +73,31 @@ function EditClientForm({
     { id: "email", title: "Эл. почта", value: "" },
   ]);
 
+  const buttons = useMemo(
+    () => [
+      {
+        id: 1,
+        text: "Сохранить",
+        type: "submit",
+        loading: String(isLoading),
+        disabled: isLoading,
+        onClick: (e) => {
+          e.preventDefault();
+          const data = {};
+          inputs.forEach((item) => {
+            if (item.type === "date") {
+              return (data[item.id] = moment(item.value).toDate());
+            }
+            if (item.value) data[item.id] = item.value;
+          });
+          data.client_id = clientId;
+          editClientKZ(setIsLoading, token, data, next);
+        },
+      },
+    ],
+    [next, isLoading, token, setIsLoading, clientId, inputs]
+  );
+
   useEffect(() => {
     getClientByIdKZ(setIsLoading, token, setClientInfo, clientId);
   }, [clientId, setIsLoading, token]);
@@ -146,26 +170,9 @@ function EditClientForm({
               />
             );
           })}
-          <MyButton
-            type="submit"
-            text="Сохранить"
-            disabled={isLoading}
-            loading={String(isLoading)}
-            onClick={(e) => {
-              e.preventDefault();
-              const data = {};
-              inputs.forEach((item) => {
-                if (item.type === "date") {
-                  return (data[item.id] = moment(item.value).toDate());
-                }
-                if (item.value) data[item.id] = item.value;
-              });
-              data.client_id = clientId;
-              editClientKZ(setIsLoading, token, data, next);
-            }}
-          />
         </div>
       }
+      buttons={buttons}
     />
   );
 }

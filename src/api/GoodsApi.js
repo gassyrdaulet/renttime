@@ -211,6 +211,53 @@ export const getAllGoods = async (
     });
 };
 
+export const getAllSpecies = async (
+  setLoading,
+  token,
+  setSpecies,
+  params,
+  setTotalCount,
+  setFilteredTotalCount
+) => {
+  setLoading(true);
+  axiosNT
+    .get(`/api/goods/getallspecies`, {
+      params,
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(({ data }) => {
+      setSpecies(data.species);
+      setTotalCount(data.totalCount);
+      setFilteredTotalCount(data.filteredTotalCount);
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const searchSpecie = async (setLoading, token, filter, setSpecies) => {
+  setLoading(true);
+  axiosNT
+    .get(`/api/goods/searchspecie`, {
+      params: { filter },
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(({ data }) => {
+      setSpecies(data);
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
 export const getSpecies = async (setLoading, token, setSpecies, good_id) => {
   setLoading(true);
   axiosNT

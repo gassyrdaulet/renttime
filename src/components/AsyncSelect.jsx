@@ -31,8 +31,9 @@ const Option = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   user-select: none;
-  cursor: pointer;
   padding: 10px;
+  color: ${(props) => (props?.disabled ? "#aaa" : "inherit")};
+  cursor: ${(props) => (props?.disabled ? "default" : "pointer")};
   &:hover {
     background-color: #ddd;
   }
@@ -104,10 +105,12 @@ function AsyncSelect({
             options.map((item) => (
               <Option
                 onMouseDown={() => {
+                  if (item.disabled) return;
                   setInputSearchText("");
                   setSelectedOption(item);
                 }}
                 key={item.id}
+                disabled={item.disabled}
               >
                 {item.value}
               </Option>

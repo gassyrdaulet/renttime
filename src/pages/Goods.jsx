@@ -33,6 +33,11 @@ function Goods() {
   const [totalCount, setTotalCount] = useState(0);
   const [filteredTotalCount, setFilteredTotalCount] = useState(0);
   const [page, setPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState(
+    localStorage.getItem("sortOrder")
+      ? localStorage.getItem("sortOrder")
+      : "DESC"
+  );
   const [pageSize, setPageSize] = useState(
     localStorage.getItem("pageSize")
       ? parseInt(localStorage.getItem("pageSize"))
@@ -89,29 +94,55 @@ function Goods() {
     []
   );
 
-  const sortByOptions = useMemo(() => [{ id: "name", name: "По имени" }], []);
+  const sortByOptions = useMemo(
+    () => [
+      { id: "id", name: "По ID" },
+      { id: "name", name: "По наименованию" },
+    ],
+    []
+  );
+
+  const sortOrderOptions = useMemo(
+    () => [
+      { id: "DESC", name: "По убыванию" },
+      { id: "ASC", name: "По возрастанию" },
+    ],
+    []
+  );
 
   const fetchData = useCallback(() => {
-    const params = {
+    const selectParams = {
       page,
       pageSize,
-      sortBy: "name",
-      sortOrder: "ASC",
+      sortBy,
+      sortOrder,
       group_id: selectedGroup,
     };
     if (confirmedSearchText) {
-      params.filter = confirmedSearchText;
+      selectParams.filter = confirmedSearchText;
+    }
+    if (selectParams.page !== parseInt(params.page)) {
+      return;
     }
     getAllGoods(
       setGoodsLoading,
       token,
       setGoods,
-      params,
+      selectParams,
       setTotalCount,
       setFilteredTotalCount
     );
     getAllGroups(setGroupsLoading, token, setGroups);
-  }, [token, page, pageSize, confirmedSearchText, selectedGroup]);
+  }, [
+    token,
+    page,
+    pageSize,
+    confirmedSearchText,
+    selectedGroup,
+    params.page,
+    sortOrder,
+    sortBy,
+  ]);
 
   useEffect(() => {
     fetchData();
@@ -128,7 +159,7 @@ function Goods() {
   }, [selectedGroup, confirmedSearchText, pageSize]);
 
   useEffect(() => {
-    navigate(`/cards/${selectedGroup}/${page}`);
+    navigate(`/goods/cards/${selectedGroup}/${page}`);
   }, [page, selectedGroup, navigate]);
 
   useEffect(() => {
@@ -149,6 +180,9 @@ function Goods() {
         selectedGroup={selectedGroup}
         groupsLoading={groupsLoading}
         groups={groups}
+        next={() => {
+          fetchData();
+        }}
       />
     </div>
   );
@@ -190,7 +224,7 @@ function Goods() {
             <GoodItem
               index={index + 1 + pageSize * (page - 1)}
               onClick={() =>
-                navigate(`/cards/${selectedGroup}/${page}/${item.id}`)
+                navigate(`/goods/cards/${selectedGroup}/${page}/${item.id}`)
               }
               key={item.id}
               goodItem={item}
@@ -217,7 +251,6 @@ function Goods() {
         />
       </Modal>
       <Modal
-        onlyByClose={true}
         title="Создание новой карточки"
         modalVisible={createGroupModal}
         setModalVisible={setCreateGroupModal}
@@ -226,6 +259,10 @@ function Goods() {
         <CreateGroupForm
           createGroupLoading={createGroupLoading}
           setCreateGroupLoading={setCreateGroupLoading}
+          next={() => {
+            setCreateGroupModal(false);
+            fetchData();
+          }}
         />
       </Modal>
       <Modal
@@ -253,6 +290,17 @@ function Goods() {
           setValue={(v) => {
             setSortBy(v);
             localStorage.setItem("sortBy", String(v));
+          }}
+        />
+        <Select
+          defaultOptions={[]}
+          value={sortOrder}
+          label="Порядок сортировки"
+          options={sortOrderOptions}
+          loading={goodsLoading}
+          setValue={(v) => {
+            setSortOrder(v);
+            localStorage.setItem("sortOrder", String(v));
           }}
         />
       </Modal>

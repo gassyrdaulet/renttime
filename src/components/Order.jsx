@@ -15,8 +15,7 @@ const OrderContainer = styled.div`
   padding: 2px;
   width: 100%;
   box-shadow: 0 0 1px rgba(0, 0, 0, 0.25);
-  border: 1px solid
-    ${(props) => (props.style?.isMarked ? props.style.markColor : "#ccc")};
+  border: 2px solid ${(props) => props.style?.colorOfOrder};
   border-radius: 3px;
   cursor: pointer;
   transition: background-color 0.1s;
@@ -41,24 +40,13 @@ const InfoTitle = styled.p`
   font-size: 8px;
 `;
 const InfoValue = styled.p`
+  text-align: center;
   font-size: 10px;
+  color: ${(props) => props.style?.textColor};
+  font-weight: ${(props) => props.style?.textWeight};
 `;
 
-function Order({ orderItem, onClick, marked }) {
-  const plannedDate = useMemo(() => {
-    if (orderItem) {
-      let renttime = 0;
-      for (let extension of orderItem.extensions) {
-        renttime += extension.renttime;
-      }
-      return moment(orderItem.started_date).add(
-        renttime,
-        TARIFF_MOMENT_KEYS[orderItem.tariff]
-      );
-    }
-    return 0;
-  }, [orderItem]);
-
+function Order({ orderItem, onClick }) {
   const renttimeTillFinished = useMemo(() => {
     if (orderItem.finished_date) {
       const renttime = moment(orderItem.finished_date).diff(
@@ -135,14 +123,63 @@ function Order({ orderItem, onClick, marked }) {
     };
   }, [orderItem, delay, renttime, renttimeTillFinished]);
 
+  const colorOfOrder = useMemo(() => {
+    if (!orderItem.signed) {
+      return "blue";
+    }
+    if (orderItem.finished_date) {
+      return "green";
+    }
+    if (
+      orderItem.planned_date < moment() ||
+      totals.paymentSum.value < totals.totalWithDiscount.value
+    ) {
+      return "red";
+    }
+    if (
+      orderItem.planned_date.diff(
+        moment(),
+        TARIFF_MOMENT_KEYS[orderItem.tariff]
+      ) < 1
+    ) {
+      return "orange";
+    }
+    return "green";
+  }, [orderItem, totals]);
+
+  const colorOfPlannedDate = useMemo(() => {
+    if (orderItem.planned_date < moment()) {
+      return "red";
+    }
+    if (
+      moment(orderItem.planned_date).diff(
+        moment(),
+        TARIFF_MOMENT_KEYS[orderItem.tariff]
+      ) < 1
+    ) {
+      return "orange";
+    }
+    return "green";
+  }, [orderItem]);
+
   return (
     <OrderContainer
       onClick={onClick}
-      style={{ isMarked: marked?.isMarked, markColor: marked?.markColor }}
+      style={{
+        colorOfOrder,
+      }}
     >
       <InfoRow>
         <ColumnInfo>
           <InfoValue>ID: {orderItem.id}</InfoValue>
+        </ColumnInfo>
+      </InfoRow>
+      <InfoRow>
+        <ColumnInfo>
+          <InfoValue>
+            {orderItem.clientInfo?.second_name} {orderItem.clientInfo?.name}{" "}
+            {orderItem.clientInfo?.father_name}
+          </InfoValue>
         </ColumnInfo>
       </InfoRow>
       <InfoRow>
@@ -168,15 +205,41 @@ function Order({ orderItem, onClick, marked }) {
         ) : (
           <ColumnInfo>
             <InfoTitle>ПЛАН</InfoTitle>
-            <InfoValue>{moment(plannedDate).format("HH:mm")}</InfoValue>
-            <InfoValue>{moment(plannedDate).format("DD.MM.yyyy")}</InfoValue>
+            <InfoValue
+              style={{
+                textColor: colorOfPlannedDate,
+                textWeight:
+                  moment(orderItem.planned_date) < moment() ? "600" : "500",
+              }}
+            >
+              {moment(orderItem.planned_date).format("HH:mm")}
+            </InfoValue>
+            <InfoValue
+              style={{
+                textColor: colorOfPlannedDate,
+                textWeight: orderItem.planned_date < moment() ? "600" : "500",
+              }}
+            >
+              {moment(orderItem.planned_date).format("DD.MM.yyyy")}
+            </InfoValue>
           </ColumnInfo>
         )}
       </InfoRow>
       <InfoRow>
         <ColumnInfo>
           <InfoTitle>ОПЛАТА</InfoTitle>
-          <InfoValue>
+          <InfoValue
+            style={{
+              textWeight:
+                totals.paymentSum.value < totals.totalWithDiscount.value
+                  ? "600"
+                  : "500",
+              textColor:
+                totals.paymentSum.value < totals.totalWithDiscount.value
+                  ? "red"
+                  : "green",
+            }}
+          >
             {totals.paymentSum.value}/{totals.totalWithDiscount.value}
           </InfoValue>
         </ColumnInfo>

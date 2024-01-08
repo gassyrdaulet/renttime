@@ -5,13 +5,19 @@ import Loading from "./Loading";
 import useAuth from "../hooks/useAuth";
 import config from "../config/config.json";
 import moment from "moment";
+import FormLayout from "./FormLayout";
+import Modal from "./Modal";
+import MyButton from "./MyButton";
+import { getDebts } from "../api/GDBApi";
+import TableLayout from "./TableLayout";
 
 const { PAPER_AUTHORITY } = config;
 
 const ClientInfoWrapper = styled.div`
   display: block;
   padding: 10px;
-  border: 1px solid #ffd700;
+  border: ${(props) =>
+    props.style?.infoBorder ? props.style.infoBorder : "1px solid #ffd700"};
   border-radius: 5px;
   margin: 10px 0;
 `;
@@ -70,6 +76,8 @@ function ClientInfo({
   selectedClient,
 }) {
   const [clientInfoLoading, setClientInfoLoading] = useState(false);
+  const [asisoipViolations, setAisoipViolations] = useState([]);
+  const [asisoipViolationsModal, setAisoipViolationsModal] = useState(false);
   const { token } = useAuth();
 
   const clientInfoFormattedFirst = useMemo(
@@ -138,6 +146,79 @@ function ClientInfo({
     return string;
   }, [selectedClientInfo]);
 
+  const aisoipHeaders = useMemo(
+    () => [
+      {
+        id: "index",
+        style: {
+          fixedMinWidth: "40px",
+          fixedJustWidth: "40px",
+          fixedMaxWidth: "40px",
+        },
+        title: "№",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
+      },
+      {
+        id: "ipDate",
+        style: {
+          fixedMinWidth: "130px",
+          fixedJustWidth: "130px",
+          fixedMaxWidth: "130px",
+        },
+        title: "Дата исполнительного производства",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
+      },
+      {
+        id: "disa",
+        style: {
+          fixedMinWidth: "140px",
+          fixedJustWidth: "140px",
+          fixedMaxWidth: "140px",
+        },
+        title: "Орган исполнительного пр-ва | Судебный исполнитель",
+        type: "text",
+      },
+      {
+        id: "ilOrgan",
+        style: {
+          fixedMinWidth: "130px",
+          fixedJustWidth: "130px",
+          fixedMaxWidth: "130px",
+        },
+        title: "Орган выдавший документ",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
+      },
+      {
+        id: "recoveryAmount",
+        style: {
+          fixedMinWidth: "120px",
+          fixedJustWidth: "120px",
+          fixedMaxWidth: "120px",
+        },
+        title: "Сумма долга",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
+      },
+    ],
+    []
+  );
+
+  const aisoipData = useMemo(
+    () =>
+      asisoipViolations.map((item, i) => ({
+        id: item.execProc,
+        index: i + 1,
+        ipDate: moment(item.ipStartDate).format("DD.MM.YYYY"),
+        disa: `${item?.disaDepartmentNameRu}, ${item?.officerSurname} ${item?.officerName}`,
+        ilOrgan: item?.ilOrganRu,
+        recoveryAmount: item?.recoveryAmount,
+      })),
+    [asisoipViolations]
+  );
+
   useEffect(() => {
     if (token && selectedClient) {
       getClientByIdKZ(
@@ -145,7 +226,9 @@ function ClientInfo({
         token,
         setSelectedClientInfo,
         selectedClient.id,
-        () => {}
+        (data) => {
+          getDebts(() => {}, token, data.paper_person_id, setAisoipViolations);
+        }
       );
     }
   }, [selectedClient, token, setSelectedClientInfo]);
@@ -157,7 +240,9 @@ function ClientInfo({
   }, [selectedClient, setSelectedClientInfo]);
 
   return (
-    <ClientInfoWrapper>
+    <ClientInfoWrapper
+      style={{ infoBorder: asisoipViolations.length > 0 && "1px solid red" }}
+    >
       <ClientName>
         {clientInfoLoading ? "Загрузка..." : clientNameFormatted}
       </ClientName>
@@ -191,6 +276,32 @@ function ClientInfo({
           </ClientInfoContainer>
         )
       )}
+      {asisoipViolations.length > 0 && (
+        <ClientInfoContainer>
+          <MyButton
+            text={"ОБНАРУЖЕНЫ записи в РЕЕСТРЕ ДОЛЖНИКОВ".toLocaleUpperCase()}
+            onClick={() => setAisoipViolationsModal(true)}
+            disabled={clientInfoLoading}
+            color={{ default: "#c8649d", dark: "#98346d" }}
+            margin="10px 0 8px 0"
+          />
+        </ClientInfoContainer>
+      )}
+      <Modal
+        setModalVisible={setAisoipViolationsModal}
+        modalVisible={asisoipViolationsModal}
+        title={`Реестр должников (${asisoipViolations.length} записей)`}
+      >
+        <FormLayout
+          mobileMaxWidth="95%"
+          firstHalf={
+            <div>
+              <TableLayout headers={aisoipHeaders} data={aisoipData} />
+            </div>
+          }
+          buttons={[]}
+        />
+      </Modal>
     </ClientInfoWrapper>
   );
 }

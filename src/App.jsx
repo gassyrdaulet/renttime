@@ -1,15 +1,16 @@
 import "./styles/App.css";
 import { useState, useRef, useEffect } from "react";
-import { AuthContext } from "./context";
+import { Context } from "./context";
 import AppRouter from "./components/AppRouter";
 import Header from "./components/Header/Header";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged, onIdTokenChanged } from "firebase/auth";
 import Loading from "./components/Loading";
 import { ping, authCheck } from "./api/AuthApi";
 import { ToastContainer } from "react-toastify";
 import Logo from "./components/Header/Logo";
 import "react-toastify/dist/ReactToastify.css";
 import { useLocation, useNavigate } from "react-router-dom";
+import AsyncConfirmModal from "./components/AsyncConfirmModal";
 
 const forbiddenRoutesToMemorize = [
   "/noorg",
@@ -26,6 +27,8 @@ export default function App() {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isNoOrg, setIsNoOrg] = useState(true);
+  const [confirmModal, setConfirmModal] = useState(false);
+  const [text, setText] = useState("");
   const [organizationId, setOrganizationId] = useState();
   const [isNoOrgLoading, setIsNoOrgLoading] = useState(false);
   const [token, setToken] = useState("");
@@ -60,6 +63,19 @@ export default function App() {
       }
     }
   }, [navigate, isAuth, isNoOrg, isError]);
+
+  useEffect(() => {
+    try {
+      const auth = getAuth();
+      onIdTokenChanged(auth, async (user) => {
+        if (user) {
+          setToken(await user.getIdToken());
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  }, []);
 
   useEffect(() => {
     setIsAuthLoading(true);
@@ -103,7 +119,7 @@ export default function App() {
 
   return (
     <div className="App" ref={AppRef} onScroll={handleScroll}>
-      <AuthContext.Provider
+      <Context.Provider
         value={{
           isAuth,
           setIsAuth,
@@ -115,6 +131,10 @@ export default function App() {
           setFixed,
           organizationId,
           currency,
+          confirmModal,
+          setConfirmModal,
+          text,
+          setText,
         }}
       >
         {isAuthLoading && (
@@ -136,7 +156,8 @@ export default function App() {
         )}
         <AppRouter />
         <ToastContainer />
-      </AuthContext.Provider>
+        <AsyncConfirmModal />
+      </Context.Provider>
     </div>
   );
 }

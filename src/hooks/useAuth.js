@@ -1,4 +1,4 @@
-import { AuthContext } from "../context";
+import { Context } from "../context";
 import { useContext } from "react";
 
 export default function useAuth() {
@@ -13,7 +13,9 @@ export default function useAuth() {
     setIsError,
     currency,
     organizationId,
-  } = useContext(AuthContext);
+    confrimModal,
+    setConfirmModal,
+  } = useContext(Context);
   return {
     setFixed,
     token,
@@ -25,5 +27,7 @@ export default function useAuth() {
     isError,
     currency,
     organizationId,
+    confrimModal,
+    setConfirmModal,
   };
 }

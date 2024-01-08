@@ -4,7 +4,6 @@ import MyButton from "./MyButton";
 import styled from "styled-components";
 import { createNewGroup } from "../api/GoodsApi";
 import useAuth from "../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
 
 const CreateGroupFormWrapper = styled.form`
   display: flex;
@@ -46,12 +45,11 @@ const ButtonsContainer = styled.div`
   border-top: 1px solid #c3c3c3;
 `;
 
-function CreateGroupForm({ createGroupLoading, setCreateGroupLoading }) {
+function CreateGroupForm({ createGroupLoading, setCreateGroupLoading, next }) {
   const [inputs, setInputs] = useState([
     { id: 0, title: "Название", value: "", name: "name", inputMode: "text" },
   ]);
   const { token } = useAuth();
-  const navigate = useNavigate();
 
   const handleInputChange = useCallback((id, value) => {
     setInputs((prev) => {
@@ -108,7 +106,7 @@ function CreateGroupForm({ createGroupLoading, setCreateGroupLoading }) {
                 ...groupData,
               },
               () => {
-                navigate(0);
+                next();
               }
             );
           }}

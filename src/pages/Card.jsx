@@ -131,7 +131,7 @@ function Card() {
     <div>
       <div
         className={cl.GoBack}
-        onClick={() => navigate(`/cards/${params.group}/${params.page}`)}
+        onClick={() => navigate(`/goods/cards/${params.group}/${params.page}`)}
       >
         <div className={cl.IconContainer}>
           <BiSolidChevronLeft size={20} />

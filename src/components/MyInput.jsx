@@ -12,6 +12,7 @@ const InputField = styled.input`
   border: 1px solid gray;
   border-radius: 5px;
   font-size: ${(props) => props.style?.inputFontSize}px;
+  text-align: ${(props) => props.style?.align};
   outline: none;
   transition: border-color 0.2s;
   &:focus {
@@ -47,6 +48,7 @@ const RightIcon = styled.div`
 `;
 
 const MyInput = ({
+  align = "start",
   fontSize = 16,
   label,
   type,
@@ -66,7 +68,10 @@ const MyInput = ({
 }) => {
   const parsedValue = useMemo(() => {
     if (zerofill) {
-      return "0".repeat(10 - value.length) + value;
+      if (zerofill - value.length >= 0) {
+        return "0".repeat(zerofill - value.length) + value;
+      }
+      return "0".repeat(zerofill);
     }
     return value;
   }, [value, zerofill]);
@@ -77,7 +82,7 @@ const MyInput = ({
       <InputWrapper>
         <InputField
           spellCheck={false}
-          style={{ inputFontSize: fontSize }}
+          style={{ inputFontSize: fontSize, align }}
           disabled={disabled}
           type={type}
           ref={inputRef}
@@ -89,7 +94,7 @@ const MyInput = ({
               const parsedValue = isNaN(parseInt(value)) ? 0 : parseInt(value);
               e.target.value =
                 parsedValue > max
-                  ? 0
+                  ? max
                   : unsigned
                   ? Math.abs(parsedValue)
                   : parsedValue;

@@ -25,6 +25,7 @@ const DatePicker = ({
   selectedDate,
   handleDateChange,
   dateTimeInputFormat = "DD.MM.yyyy HH:mm",
+  step = 1,
 }) => {
   return (
     <DatePickerWrapper>
@@ -42,9 +43,9 @@ const DatePicker = ({
       />
       <DateTimeWrapper>
         <DateTime
+          timeConstraints={{ minutes: { step } }}
           locale="ru"
           timeFormat={disabled ? false : timeFormat}
-          dateFormat="DD.MM.yyyyг."
           value={selectedDate}
           onChange={(v) => {
             if (!disabled) handleDateChange(v);

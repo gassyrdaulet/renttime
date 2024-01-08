@@ -381,9 +381,7 @@ function OrderDetails() {
         type: "rowTitle",
       },
       {
-        value: `${moment(orderInfo.started_date)
-          .add(renttime, TARIFF_MOMENT_KEYS[orderInfo.tariff])
-          .format("DD.MM.yyyy HH:mm")} ${
+        value: `${moment(orderInfo.planned_date).format("DD.MM.yyyy HH:mm")} ${
           factDelay >= 0
             ? `(Просрочка: ${factDelay} ${
                 TARIFF_UNITS_2[orderInfo.tariff]
