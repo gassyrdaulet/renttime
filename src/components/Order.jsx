@@ -131,13 +131,13 @@ function Order({ orderItem, onClick }) {
       return "green";
     }
     if (
-      orderItem.planned_date < moment() ||
+      moment(orderItem.planned_date) < moment() ||
       totals.paymentSum.value < totals.totalWithDiscount.value
     ) {
       return "red";
     }
     if (
-      orderItem.planned_date.diff(
+      moment(orderItem.planned_date).diff(
         moment(),
         TARIFF_MOMENT_KEYS[orderItem.tariff]
       ) < 1
@@ -148,7 +148,7 @@ function Order({ orderItem, onClick }) {
   }, [orderItem, totals]);
 
   const colorOfPlannedDate = useMemo(() => {
-    if (orderItem.planned_date < moment()) {
+    if (moment(orderItem.planned_date) < moment()) {
       return "red";
     }
     if (
@@ -217,7 +217,8 @@ function Order({ orderItem, onClick }) {
             <InfoValue
               style={{
                 textColor: colorOfPlannedDate,
-                textWeight: orderItem.planned_date < moment() ? "600" : "500",
+                textWeight:
+                  moment(orderItem.planned_date) < moment() ? "600" : "500",
               }}
             >
               {moment(orderItem.planned_date).format("DD.MM.yyyy")}

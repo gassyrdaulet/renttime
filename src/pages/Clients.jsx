@@ -231,7 +231,9 @@ function Clients() {
           fullname: `${item.second_name} ${item.name} ${
             item?.father_name ? item.father_name : ""
           }`,
-          debtsSum: `${item.debts_sum} ${CURRENCIES[currency]}`,
+          debtsSum: `${item.debts_sum ? item.debts_sum : 0} ${
+            CURRENCIES[currency]
+          }`,
         };
       }),
     [clients, page, pageSize, currency]

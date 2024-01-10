@@ -1089,7 +1089,7 @@ function OrderDetails() {
           </div>
         ) : orderInfo.notFound ? (
           <div className="LoadingWrapper2">
-            <p>Заказ ID{params.id} не найден</p>
+            <p>Заказ ID: {params.id} не найден</p>
           </div>
         ) : (
           mainContent
