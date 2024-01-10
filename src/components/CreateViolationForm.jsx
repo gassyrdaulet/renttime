@@ -1,5 +1,4 @@
 import { useState, useCallback, useMemo } from "react";
-import MyInput from "./MyInput";
 import useAuth from "../hooks/useAuth";
 import FormLayout from "./FormLayout";
 import Switch from "./Switch";
@@ -7,36 +6,29 @@ import { createDebt } from "../api/ClientApi";
 import DatePicker from "./DatePicker";
 import MyTextarea from "./MyTextarea";
 import moment from "moment";
+import Select from "./Select";
 
-function CreateViolationForm({ isLoading, setIsLoading, clientId, next }) {
-  const [inputs, setInputs] = useState([
-    {
-      id: 0,
-      title: "Сумма",
-      value: "0",
-      name: "amount",
-      inputMode: "numeric",
-      integer: true,
-      unsigned: true,
-    },
-  ]);
+function CreateViolationForm({
+  isLoading,
+  setIsLoading,
+  clientId,
+  orderId,
+  next,
+}) {
   const [date, setDate] = useState(moment());
   const [ownDate, setOwnDate] = useState(false);
   const [comment, setComment] = useState("");
+  const [selectedSpecie, setSelectedSpecie] = useState("");
+  const [type, setType] = useState();
   const { token } = useAuth();
 
-  const handleInputChange = useCallback((id, value) => {
-    setInputs((prev) => {
-      const temp = [...prev];
-      for (let item of temp) {
-        if (item.id === id) {
-          item.value = value;
-          break;
-        }
-      }
-      return temp;
-    });
-  }, []);
+  const violationTypes = useMemo(
+    () => [
+      { id: "missing", name: "Потеря" },
+      { id: "broken", name: "Поломка" },
+    ],
+    []
+  );
 
   const buttons = useMemo(
     () => [
@@ -80,21 +72,6 @@ function CreateViolationForm({ isLoading, setIsLoading, clientId, next }) {
     <FormLayout
       firstHalf={
         <div>
-          {inputs.map((item) => (
-            <MyInput
-              onChange={(e) => {
-                handleInputChange(item.id, e.target.value);
-              }}
-              label={item.title}
-              key={item.id}
-              value={item.value}
-              disabled={isLoading}
-              inputMode={item.inputMode}
-              integer={item.integer}
-              unsigned={item.unsigned}
-              zerofill={item.zerofill}
-            />
-          ))}
           <MyTextarea
             placeholder=""
             label="Комментарий"
@@ -108,6 +85,14 @@ function CreateViolationForm({ isLoading, setIsLoading, clientId, next }) {
             label="Своя дата"
             isChecked={ownDate}
             setChecked={setOwnDate}
+          />
+          <Select
+            disabled={isLoading}
+            loading={isLoading}
+            options={violationTypes}
+            setValue={setType}
+            value={type}
+            label="Тип нарушения"
           />
           {ownDate && (
             <DatePicker
