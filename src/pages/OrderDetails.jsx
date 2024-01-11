@@ -41,6 +41,8 @@ import CreatePaymentCourierForm from "../components/CreatePaymentCourierForm";
 import BlueLinkButton from "../components/BlueLinkButton";
 import EditDeliveryForm from "../components/EditDeliveryForm";
 import { cancelDelivery } from "../api/DeliveriesApi";
+import { FaMinusCircle } from "react-icons/fa";
+import CreateNewViolationForm from "../components/CreateNewViolationForm";
 
 const {
   TARIFF_MOMENT_KEYS,
@@ -101,6 +103,7 @@ function OrderDetails() {
     notFound: true,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [addViolationModal, setAddViolationModal] = useState(false);
   const [editLoading, setEditloading] = useState(false);
   const [addPaymentModal, setAddPaymentModal] = useState(false);
   const [addPaymentCourierModal, setAddPaymentCourierModal] = useState(false);
@@ -194,6 +197,13 @@ function OrderDetails() {
         icon: <BiFile color="#aF09dd" size={20} />,
         onClick: () => setConfirmFinish(true),
         disabled: orderInfo.finished_date,
+      },
+      {
+        id: 10,
+        title: "Добавить нарушение",
+        icon: <FaMinusCircle color="#9D0F58" size={20} />,
+        onClick: () => setAddViolationModal(true),
+        disabled: !orderInfo.finished_date,
       },
     ],
     [orderInfo, organizationId, params.id]
@@ -987,6 +997,23 @@ function OrderDetails() {
           orderId={params.id}
           next={() => {
             setAddDeliveryModal(false);
+            getOrderDetailsCallback();
+          }}
+        />
+      </Modal>
+      <Modal
+        modalVisible={addViolationModal}
+        setModalVisible={setAddViolationModal}
+        noEscape={editLoading}
+        title="Добавить нарушение"
+      >
+        <CreateNewViolationForm
+          isLoading={editLoading}
+          setIsLoading={setEditloading}
+          orderId={params.id}
+          species={orderInfo.orderGoods}
+          next={() => {
+            setAddViolationModal(false);
             getOrderDetailsCallback();
           }}
         />

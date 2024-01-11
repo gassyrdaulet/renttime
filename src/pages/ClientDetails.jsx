@@ -1,12 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import useAuth from "../hooks/useAuth";
 import ContainerLayout from "../components/ContainerLayout";
-import {
-  FaPencilAlt,
-  FaTrashAlt,
-  FaMoneyBill,
-  FaMinusCircle,
-} from "react-icons/fa";
+import { FaPencilAlt, FaTrashAlt, FaMoneyBill } from "react-icons/fa";
 import CredButtons from "../components/CredButtons";
 import Loading from "../components/Loading";
 import { useParams, useNavigate } from "react-router-dom";
@@ -44,7 +39,6 @@ function ClientDetails() {
   const [editLoading, setEditLoading] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [addDebtModal, setAddDebtModal] = useState(false);
-  const [addViolationModal, setAddViolationModal] = useState(false);
   const [data, setData] = useState({});
   const { token, currency } = useAuth();
   const { confirm } = useConfirm();
@@ -64,13 +58,6 @@ function ClientDetails() {
       title: "Добавить долг",
       icon: <FaMoneyBill color="#0F9D58" size={20} />,
       onClick: () => setAddDebtModal(true),
-      disabled: isLoading,
-    },
-    {
-      id: 3,
-      title: "Добавить нарушение",
-      icon: <FaMinusCircle color="#9D0F58" size={20} />,
-      onClick: () => setAddViolationModal(true),
       disabled: isLoading,
     },
     {
@@ -228,10 +215,10 @@ function ClientDetails() {
           "DD.MM.YYYY HH:mm"
         )} - ${violation.userInfo.name} - ID смены: ${violation.workshift_id}`,
         values: [
-          `Тип: ${SPECIE_STATUSES[violation.specie_violations_type]}`,
+          `Тип: ${SPECIE_STATUSES[violation.specie_violation_type]}`,
           `ID Единицы: ${violation.specie_id}`,
           `ID Заказа: ${violation.order_id}`,
-          `Комментарий: ${violation.comment}`,
+          `Комментарий: ${violation.comment ? violation.comment : "-"}`,
         ],
       })),
     [data]
@@ -293,12 +280,6 @@ function ClientDetails() {
           }}
         />
       </Modal>
-      <Modal
-        modalVisible={addViolationModal}
-        setModalVisible={setAddViolationModal}
-        noEscape={editLoading}
-        title="Добавить нарушение"
-      ></Modal>
     </div>
   );
 

@@ -192,6 +192,30 @@ export const newDiscount = async (
     });
 };
 
+export const newViolation = async (
+  setLoading,
+  token,
+  body,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .post(`/api/orders/newviolation`, body, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      toast.success("Новое нарушение успешно добавлено", { draggable: false });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
 export const finishOrder = async (
   setLoading,
   token,

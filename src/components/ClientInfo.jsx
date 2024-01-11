@@ -11,7 +11,7 @@ import MyButton from "./MyButton";
 import { getDebts } from "../api/GDBApi";
 import TableLayout from "./TableLayout";
 
-const { PAPER_AUTHORITY } = config;
+const { PAPER_AUTHORITY, SPECIE_STATUSES, CURRENCIES } = config;
 
 const ClientInfoWrapper = styled.div`
   display: block;
@@ -76,9 +76,12 @@ function ClientInfo({
   selectedClient,
 }) {
   const [clientInfoLoading, setClientInfoLoading] = useState(false);
-  const [asisoipViolations, setAisoipViolations] = useState([]);
-  const [asisoipViolationsModal, setAisoipViolationsModal] = useState(false);
-  const { token } = useAuth();
+  const [aisoipLoading, setAisoipLoading] = useState(false);
+  const [aisoipViolations, setAisoipViolations] = useState([]);
+  const [aisoipViolationsModal, setAisoipViolationsModal] = useState(false);
+  const [violationsModal, setViolationsModal] = useState(false);
+  const [debtsModal, setDebtsModal] = useState(false);
+  const { token, currency } = useAuth();
 
   const clientInfoFormattedFirst = useMemo(
     () => [
@@ -206,9 +209,130 @@ function ClientInfo({
     []
   );
 
+  const violationsHeaders = useMemo(
+    () => [
+      {
+        id: "index",
+        style: {
+          fixedMinWidth: "40px",
+          fixedJustWidth: "40px",
+          fixedMaxWidth: "40px",
+        },
+        title: "№",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
+      },
+      {
+        id: "date",
+        style: {
+          fixedMinWidth: "130px",
+          fixedJustWidth: "130px",
+          fixedMaxWidth: "130px",
+        },
+        title: "Дата нарушения",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
+      },
+      {
+        id: "type",
+        style: {
+          fixedMinWidth: "140px",
+          fixedJustWidth: "140px",
+          fixedMaxWidth: "140px",
+        },
+        title: "Тип нарушения и ID единицы",
+        type: "text",
+      },
+      {
+        id: "orderId",
+        style: {
+          fixedMinWidth: "50px",
+          fixedJustWidth: "50px",
+          fixedMaxWidth: "50px",
+        },
+        title: "ID заказа",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
+      },
+      {
+        id: "comment",
+        style: {
+          fixedMinWidth: "130px",
+          fixedJustWidth: "130px",
+          fixedMaxWidth: "130px",
+        },
+        title: "Комментарий",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
+      },
+    ],
+    []
+  );
+
+  const debtsHeaders = useMemo(
+    () => [
+      {
+        id: "index",
+        style: {
+          fixedMinWidth: "40px",
+          fixedJustWidth: "40px",
+          fixedMaxWidth: "40px",
+        },
+        title: "№",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
+      },
+      {
+        id: "date",
+        style: {
+          fixedMinWidth: "130px",
+          fixedJustWidth: "130px",
+          fixedMaxWidth: "130px",
+        },
+        title: "Дата нарушения",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
+      },
+      {
+        id: "amount",
+        style: {
+          fixedMinWidth: "70px",
+          fixedJustWidth: "70px",
+          fixedMaxWidth: "70px",
+        },
+        title: "Сумма",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
+      },
+      {
+        id: "orderId",
+        style: {
+          fixedMinWidth: "50px",
+          fixedJustWidth: "50px",
+          fixedMaxWidth: "50px",
+        },
+        title: "ID заказа",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
+      },
+      {
+        id: "comment",
+        style: {
+          fixedMinWidth: "130px",
+          fixedJustWidth: "130px",
+          fixedMaxWidth: "130px",
+        },
+        title: "Комментарий",
+        dataStyle: { dataAlign: "center" },
+        type: "text",
+      },
+    ],
+    []
+  );
+
   const aisoipData = useMemo(
     () =>
-      asisoipViolations.map((item, i) => ({
+      aisoipViolations.map((item, i) => ({
         id: item.execProc,
         index: i + 1,
         ipDate: moment(item.ipStartDate).format("DD.MM.YYYY"),
@@ -216,7 +340,43 @@ function ClientInfo({
         ilOrgan: item?.ilOrganRu,
         recoveryAmount: item?.recoveryAmount,
       })),
-    [asisoipViolations]
+    [aisoipViolations]
+  );
+
+  const violationsData = useMemo(
+    () =>
+      selectedClientInfo?.violations?.map((item, i) => ({
+        id: item.id,
+        index: i + 1,
+        date: moment(item.date).format("DD.MM.YYYY"),
+        type: `${item.specie_id} ${
+          SPECIE_STATUSES[item.specie_violation_type]
+        }`,
+        comment: item?.comment ? item.comment : "-",
+        orderId: item?.order_id,
+      })),
+    [selectedClientInfo]
+  );
+
+  const unclosedDebts = useMemo(() => {
+    try {
+      return selectedClientInfo.debts.filter((item) => !item.closed);
+    } catch {
+      return [];
+    }
+  }, [selectedClientInfo]);
+
+  const debtsData = useMemo(
+    () =>
+      unclosedDebts?.map((item, i) => ({
+        id: item.id,
+        index: i + 1,
+        date: moment(item.date).format("DD.MM.YYYY"),
+        comment: item?.comment ? item.comment : "-",
+        orderId: item?.order_id ? item?.order_id : "-",
+        amount: `${item.amount} ${CURRENCIES[currency]}`,
+      })),
+    [unclosedDebts, currency]
   );
 
   useEffect(() => {
@@ -227,11 +387,29 @@ function ClientInfo({
         setSelectedClientInfo,
         selectedClient.id,
         (data) => {
-          getDebts(() => {}, token, data.paper_person_id, setAisoipViolations);
+          console.log(data);
+          getDebts(
+            setAisoipLoading,
+            token,
+            data.paper_person_id,
+            setAisoipViolations
+          );
         }
       );
     }
   }, [selectedClient, token, setSelectedClientInfo]);
+
+  const debtsSum = useMemo(() => {
+    const sum = selectedClientInfo.debts?.reduce(
+      (accumulator, currentValue) => {
+        return currentValue.closed
+          ? accumulator
+          : accumulator + currentValue.amount;
+      },
+      0
+    );
+    return sum;
+  }, [selectedClientInfo]);
 
   useEffect(() => {
     if (!selectedClient) {
@@ -241,7 +419,13 @@ function ClientInfo({
 
   return (
     <ClientInfoWrapper
-      style={{ infoBorder: asisoipViolations.length > 0 && "1px solid red" }}
+      style={{
+        infoBorder:
+          (aisoipViolations.length > 0 ||
+            selectedClientInfo?.violations?.length > 0 ||
+            selectedClientInfo?.debts?.length > 0) &&
+          "1px solid red",
+      }}
     >
       <ClientName>
         {clientInfoLoading ? "Загрузка..." : clientNameFormatted}
@@ -276,10 +460,40 @@ function ClientInfo({
           </ClientInfoContainer>
         )
       )}
-      {asisoipViolations.length > 0 && (
+      {!clientInfoLoading && unclosedDebts?.length > 0 && (
         <ClientInfoContainer>
           <MyButton
-            text={"ОБНАРУЖЕНЫ записи в РЕЕСТРЕ ДОЛЖНИКОВ".toLocaleUpperCase()}
+            text={`ОБНАРУЖЕНЫ НЕЗАКРЫТЫЕ ДОЛГИ (${debtsSum} ${CURRENCIES[currency]})`}
+            onClick={() => setDebtsModal(true)}
+            disabled={clientInfoLoading}
+            color={{ default: "#c8649d", dark: "#98346d" }}
+            margin="10px 0 8px 0"
+          />
+        </ClientInfoContainer>
+      )}
+      {!clientInfoLoading && selectedClientInfo?.violations?.length > 0 && (
+        <ClientInfoContainer>
+          <MyButton
+            text={"ОБНАРУЖЕНЫ НАРУШЕНИЯ"}
+            onClick={() => setViolationsModal(true)}
+            disabled={clientInfoLoading}
+            color={{ default: "#c8649d", dark: "#98346d" }}
+            margin="10px 0 8px 0"
+          />
+        </ClientInfoContainer>
+      )}
+      {aisoipLoading && (
+        <ClientInfoContainer>
+          <div className="LoadingWrapper1">
+            <p>Проверка на наличие записей в реестре должников...</p>
+            <Loading />
+          </div>
+        </ClientInfoContainer>
+      )}{" "}
+      {!aisoipLoading && aisoipViolations.length > 0 && (
+        <ClientInfoContainer>
+          <MyButton
+            text={"ОБНАРУЖЕНЫ ЗАПИСИ В РЕЕСТРЕ ДОЛЖНИКОВ"}
             onClick={() => setAisoipViolationsModal(true)}
             disabled={clientInfoLoading}
             color={{ default: "#c8649d", dark: "#98346d" }}
@@ -289,14 +503,44 @@ function ClientInfo({
       )}
       <Modal
         setModalVisible={setAisoipViolationsModal}
-        modalVisible={asisoipViolationsModal}
-        title={`Реестр должников (${asisoipViolations.length} записей)`}
+        modalVisible={aisoipViolationsModal}
+        title={`Реестр должников (${aisoipViolations.length} записей)`}
       >
         <FormLayout
           mobileMaxWidth="95%"
           firstHalf={
             <div>
               <TableLayout headers={aisoipHeaders} data={aisoipData} />
+            </div>
+          }
+          buttons={[]}
+        />
+      </Modal>
+      <Modal
+        setModalVisible={setViolationsModal}
+        modalVisible={violationsModal}
+        title={`Обнаружено ${selectedClientInfo?.violations?.length} записей`}
+      >
+        <FormLayout
+          mobileMaxWidth="95%"
+          firstHalf={
+            <div>
+              <TableLayout headers={violationsHeaders} data={violationsData} />
+            </div>
+          }
+          buttons={[]}
+        />
+      </Modal>
+      <Modal
+        setModalVisible={setDebtsModal}
+        modalVisible={debtsModal}
+        title={`Обнаружено ${unclosedDebts?.length} записей`}
+      >
+        <FormLayout
+          mobileMaxWidth="95%"
+          firstHalf={
+            <div>
+              <TableLayout headers={debtsHeaders} data={debtsData} />
             </div>
           }
           buttons={[]}

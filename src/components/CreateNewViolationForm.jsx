@@ -1,25 +1,25 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import useAuth from "../hooks/useAuth";
 import FormLayout from "./FormLayout";
 import Switch from "./Switch";
-import { createDebt } from "../api/ClientApi";
 import DatePicker from "./DatePicker";
 import MyTextarea from "./MyTextarea";
 import moment from "moment";
 import Select from "./Select";
+import { newViolation } from "../api/OrderApi";
 
-function CreateViolationForm({
+function CreateNewViolationForm({
   isLoading,
   setIsLoading,
-  clientId,
   orderId,
+  species,
   next,
 }) {
   const [date, setDate] = useState(moment());
   const [ownDate, setOwnDate] = useState(false);
   const [comment, setComment] = useState("");
-  const [selectedSpecie, setSelectedSpecie] = useState("");
-  const [type, setType] = useState();
+  const [selectedSpecie, setSelectedSpecie] = useState("none");
+  const [type, setType] = useState("missing");
   const { token } = useAuth();
 
   const violationTypes = useMemo(
@@ -40,51 +40,56 @@ function CreateViolationForm({
         disabled: isLoading,
         onClick: (e) => {
           e.preventDefault();
-          const data = {};
-          inputs.forEach((item) => {
-            data[item.name] = item.value;
-          });
+          const data = {
+            order_id: orderId,
+            specie_id: selectedSpecie,
+            specie_violation_type: type,
+          };
           if (ownDate) {
             data.date = date;
           }
           if (comment) {
             data.comment = comment;
           }
-          data.client_id = clientId;
-          createDebt(setIsLoading, token, data, next);
+          newViolation(setIsLoading, token, data, next);
         },
       },
     ],
     [
       isLoading,
       next,
-      clientId,
       setIsLoading,
+      orderId,
       token,
       comment,
       date,
       ownDate,
-      inputs,
+      selectedSpecie,
+      type,
     ]
+  );
+
+  const formattedSpecies = useMemo(
+    () =>
+      species.map((item) => ({
+        id: item.specie.id,
+        name: `${item.specie.code} - ${item.good.name}`,
+      })),
+    [species]
   );
 
   return (
     <FormLayout
       firstHalf={
         <div>
-          <MyTextarea
-            placeholder=""
-            label="Комментарий"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
+          <Select
             disabled={isLoading}
-            max={150}
-          />
-          <Switch
-            disabled={isLoading}
-            label="Своя дата"
-            isChecked={ownDate}
-            setChecked={setOwnDate}
+            loading={isLoading}
+            defaultOptions={[{ id: "none", name: "Не выбрано" }]}
+            options={formattedSpecies}
+            setValue={setSelectedSpecie}
+            value={selectedSpecie}
+            label="Товар"
           />
           <Select
             disabled={isLoading}
@@ -93,6 +98,12 @@ function CreateViolationForm({
             setValue={setType}
             value={type}
             label="Тип нарушения"
+          />
+          <Switch
+            disabled={isLoading}
+            label="Своя дата"
+            isChecked={ownDate}
+            setChecked={setOwnDate}
           />
           {ownDate && (
             <DatePicker
@@ -103,6 +114,14 @@ function CreateViolationForm({
               timeFormat="HH:mm"
             />
           )}
+          <MyTextarea
+            placeholder=""
+            label="Комментарий"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            disabled={isLoading}
+            max={150}
+          />
         </div>
       }
       buttons={buttons}
@@ -110,4 +129,4 @@ function CreateViolationForm({
   );
 }
 
-export default CreateViolationForm;
+export default CreateNewViolationForm;
