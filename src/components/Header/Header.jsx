@@ -7,7 +7,6 @@ import {
   FaShoppingCart,
   FaTools,
   FaListAlt,
-  FaCog,
   FaUsers,
   FaUserCog,
   FaCashRegister,
@@ -101,6 +100,8 @@ function Header() {
         name: "СМЕНЫ",
         icon: <FaCashRegister />,
         id: 4,
+        onClick: () => navigate("/workshifts/1"),
+        path: "/workshifts/",
       },
       {
         name: "КЛИЕНТЫ",
@@ -115,13 +116,6 @@ function Header() {
         id: 6,
         menuItems: [
           {
-            id: 0,
-            icon: <FaCog />,
-            name: "Отчет по расходникам",
-            path: "",
-            onClick: () => {},
-          },
-          {
             id: 1,
             icon: <FaUsers />,
             name: "Отчет по клиентам",
@@ -131,7 +125,7 @@ function Header() {
           {
             id: 2,
             icon: <FaShoppingCart />,
-            name: "Отчет по товарам",
+            name: "ABC анализ",
             path: "",
             onClick: () => {},
           },

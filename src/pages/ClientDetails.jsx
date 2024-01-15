@@ -17,6 +17,8 @@ import Modal from "../components/Modal";
 import EditClientForm from "../components/EditClientForm";
 import CreateDebtForm from "../components/CreateDebtForm";
 import useConfirm from "../hooks/useConfirm";
+import { getMethods } from "../api/OrganizationApi";
+import Select from "../components/Select";
 
 const { GENDERS, PAPER_AUTHORITY, CURRENCIES, SPECIE_STATUSES } = config;
 
@@ -44,6 +46,25 @@ function ClientDetails() {
   const { confirm } = useConfirm();
   const params = useParams();
   const navigate = useNavigate();
+  const [paymentMethod, setPaymentMethod] = useState();
+  const [paymentMethods, setPaymentMethods] = useState([
+    { id: 0, name: "Загрузка..." },
+  ]);
+
+  useEffect(() => {
+    getMethods(setEditLoading, token, setPaymentMethods);
+  }, [token]);
+
+  const options = useMemo(() => {
+    const result = paymentMethods.map((item) => ({
+      id: item.id,
+      name: item.name + (item.comission ? ` (${item.comission}%)` : ""),
+    }));
+    if (result.length !== 0) {
+      setPaymentMethod(result[0].id);
+    }
+    return result;
+  }, [paymentMethods]);
 
   const credButtons = [
     {
@@ -174,7 +195,7 @@ function ClientDetails() {
         values: [
           `Сумма: ${debt.amount} ${CURRENCIES[currency]}`,
           `Комментарий: ${debt.comment ? debt.comment : "-"}`,
-          `Заказ: ${debt.order_id ? debt.order_id : "НЕТ"}`,
+          `Заказ: ${debt.order_id ? debt.order_id : "-"}`,
           `Закрыт: ${debt.closed ? "ДА" : "НЕТ"}`,
         ],
         buttons: debt.closed
@@ -185,16 +206,43 @@ function ClientDetails() {
                 onClick: async () => {
                   if (
                     await confirm(
-                      `Вы уверены что хотите закрыть этот долг? (ID: ${debt.id})`
+                      <div>
+                        <p>
+                          Вы уверены что хотите закрыть этот долг? ID:
+                          {debt.id}
+                        </p>
+                        <Select
+                          label="Способ оплаты"
+                          value={paymentMethod}
+                          setValue={setPaymentMethod}
+                          loading={editLoading}
+                          defaultOptions={[]}
+                          options={options}
+                        />
+                      </div>
                     )
                   ) {
-                    closeDebt(setIsLoading, token, debt.id, () => fetchData());
+                    closeDebt(
+                      setIsLoading,
+                      token,
+                      { debt_id: debt.id, payment_method_id: paymentMethod },
+                      () => fetchData()
+                    );
                   }
                 },
               },
             ],
       })),
-    [data, currency, confirm, fetchData, token]
+    [
+      data,
+      currency,
+      confirm,
+      fetchData,
+      token,
+      options,
+      editLoading,
+      paymentMethod,
+    ]
   );
 
   const debtsSum = useMemo(() => {

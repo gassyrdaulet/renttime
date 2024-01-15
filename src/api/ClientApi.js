@@ -158,19 +158,19 @@ export const createDebt = async (setLoading, token, body, next) => {
     });
 };
 
-export const closeDebt = async (setLoading, token, debt_id, next) => {
+export const closeDebt = async (setLoading, token, params, next) => {
   setLoading(true);
   axiosNT
     .post(
       `/api/clients/closedebt`,
       {},
       {
-        params: { debt_id },
+        params,
         headers: { Authorization: "Bearer " + token },
       }
     )
     .then(() => {
-      toast.success("Долг успешно закрыть", { draggable: false });
+      toast.success("Долг успешно закрыт", { draggable: false });
       next();
     })
     .catch((e) => {

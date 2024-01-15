@@ -265,3 +265,126 @@ export const grantPrivilege = async (
       setLoading(false);
     });
 };
+
+export const getAllWorkshifts = async (
+  setLoading,
+  token,
+  setWorkshifts,
+  params,
+  setFilteredTotalCount
+) => {
+  setLoading(true);
+  axiosNT
+    .get(`/api/organization/getworkshifts`, {
+      params,
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(({ data }) => {
+      setWorkshifts(data.workshifts);
+      setFilteredTotalCount(data.filteredTotalCount);
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const openWorkshift = async (setLoading, token, next = () => {}) => {
+  setLoading(true);
+  axiosNT
+    .post(
+      `/api/organization/newworkshift`,
+      {},
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    .then(() => {
+      toast.success("Новая смена успешно открыта", { draggable: false });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const closeWorkshift = async (
+  setLoading,
+  workshift_id,
+  token,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .post(
+      `/api/organization/closeworkshift`,
+      { workshift_id },
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    )
+    .then(() => {
+      toast.success("Смена успешно закрыта", { draggable: false });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const getWorkshift = async (setLoading, params, token, setWorkshift) => {
+  setLoading(true);
+  axiosNT
+    .get(`/api/organization/getworkshift`, {
+      params,
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(({ data }) => {
+      setWorkshift(data);
+    })
+    .catch((e) => {
+      console.log(e);
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const controlWorkshift = async (
+  setLoading,
+  body,
+  token,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .post(`/api/organization/controlworkshift`, body, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      toast.success("Новая операция успешно зарегистрирована", {
+        draggable: false,
+      });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};

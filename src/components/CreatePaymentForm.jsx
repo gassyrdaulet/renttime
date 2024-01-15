@@ -74,7 +74,7 @@ function CreatePaymentForm({
     { id: 0, name: "Загрузка..." },
   ]);
   const [paymentMethod, setPaymentMethod] = useState();
-  const [isDebt, setIsDebt] = useState(false);
+  // const [isDebt, setIsDebt] = useState(false);
   const [date, setDate] = useState(moment());
   const [ownDate, setOwnDate] = useState(false);
 
@@ -134,12 +134,12 @@ function CreatePaymentForm({
               defaultOptions={[]}
               options={options}
             />
-            <Switch
+            {/* <Switch
               disabled={createPaymentLoading}
               label="В долг"
               isChecked={isDebt}
               setChecked={setIsDebt}
-            />
+            /> */}
             <Switch
               disabled={createPaymentLoading}
               label="Своя дата"
@@ -179,7 +179,7 @@ function CreatePaymentForm({
               orderId,
               {
                 ...data,
-                is_debt: isDebt,
+                // is_debt: isDebt,
                 payment_method_id: paymentMethod,
               },
               next

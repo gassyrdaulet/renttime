@@ -10,5 +10,5 @@ export const finalIpAddress =
 
 export const axiosNT = axios.create({
   baseURL: finalIpAddress,
-  timeout: 10000,
+  timeout: 60000,
 });
