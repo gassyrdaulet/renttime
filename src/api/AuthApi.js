@@ -131,7 +131,8 @@ export const ping = async (
   setIsNoOrgLoading,
   setIsError,
   token,
-  setOrganizationId
+  setOrganizationId = () => {},
+  setOrgData = () => {}
 ) => {
   if (!token) {
     setIsNoOrg(true);
@@ -148,6 +149,7 @@ export const ping = async (
       setIsNoOrg(false);
       setIsError(false);
       setOrganizationId(data.organizationId);
+      setOrgData(data.orgData);
     })
     .catch((e) => {
       const errMsg = e?.response?.data?.message;

@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import styled from "styled-components";
 import GoodPicker from "./GoodPicker";
 import ClientPicker from "./ClientPicker";
-import DatePicker from "./DatePicker";
+import DateTimePicker from "./DateTimePicker";
 import MyInput from "./MyInput";
 import Select from "./Select";
 import moment from "moment";
@@ -386,10 +386,10 @@ function CreateNewOrder({
         <StepTitle>3. ЗАКЛЮЧИТЕ ДОГОВОР</StepTitle>
         <SignContractWrapper>
           <SignContractHalf>
-            <DatePicker
+            <DateTimePicker
               disabled={createNewOrderLoading}
-              selectedDate={startDate}
-              handleDateChange={setStartDate}
+              dateTime={startDate}
+              setDateTime={setStartDate}
               label="Дата старта"
             />
           </SignContractHalf>

@@ -36,7 +36,6 @@ function Select({
   defaultOptions = [],
   loading,
   setValue,
-  className,
   value,
   disabled,
   label,
@@ -51,8 +50,7 @@ function Select({
           if (loading) return;
           setValue(target.value);
         }}
-        disabled={loading}
-        className={className}
+        disabled={loading || disabled}
       >
         {defaultOptions.map((item) => {
           return (

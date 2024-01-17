@@ -405,9 +405,9 @@ function GoodPicker({ tariff, pickedGoods, setPickedGoods, disabled }) {
         }
         return {
           id: item.id,
-          value: `${String(item.code).padStart(10, "0")} - ${
-            item.goodInfo.name
-          } ${SPECIE_STATUSES[item.status]} - (ID: ${item.id})`,
+          value: `${item.goodInfo.id}/${item.id} - ${item.goodInfo.name} ${
+            SPECIE_STATUSES[item.status]
+          } - (ID: ${item.id})`,
           specie: item,
           disabled: !SPECIE_STATUSES_AVAILABLE?.[item.status] || alreadyThere,
         };

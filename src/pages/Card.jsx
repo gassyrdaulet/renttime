@@ -70,7 +70,7 @@ function Card() {
   const filteredSpecies = useMemo(
     () =>
       species.filter((v) => {
-        return (v?.code + "").includes(searchInputText);
+        return (v?.id + "").includes(searchInputText);
       }),
     [species, searchInputText]
   );
@@ -190,6 +190,7 @@ function Card() {
                 next={() => {
                   fetchData();
                 }}
+                code={`${params.id}/${item.id}`}
                 specieItem={item}
                 key={item.id}
                 cursorType="default"

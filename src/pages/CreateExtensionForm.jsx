@@ -6,7 +6,7 @@ import useAuth from "../hooks/useAuth";
 import Switch from "./Switch";
 import { newExtension } from "../api/OrderApi";
 import moment from "moment";
-import DatePicker from "./DatePicker";
+import DateTimePicker from "./DateTimePicker";
 import config from "../config/config.json";
 
 const { TARIFF_UNITS_2 } = config;
@@ -115,12 +115,11 @@ function CreateExtensionForm({
               setChecked={setOwnDate}
             />
             {ownDate && (
-              <DatePicker
+              <DateTimePicker
                 disabled={createExtensionLoading}
                 label="Дата продления"
-                selectedDate={date}
-                handleDateChange={setDate}
-                timeFormat="HH:mm"
+                dateTime={date}
+                setDateTime={setDate}
               />
             )}
           </InputsContainer>

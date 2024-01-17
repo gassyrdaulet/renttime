@@ -8,7 +8,6 @@ import Select from "../components/Select";
 import MyButton from "../components/MyButton";
 import styled from "styled-components";
 import TimePicker from "../components/TimePicker";
-import moment from "moment";
 import config from "../config/config.json";
 
 const { COMPANY_TYPES } = config;
@@ -41,24 +40,21 @@ const InputsContainer = styled.div`
   margin-bottom: 15px;
   padding-bottom: 10px;
   border-bottom: 1px solid #cccccc;
-  height: 70vh;
+  height: 60vh;
   overflow-y: auto;
 `;
 const PickTimeContainer = styled.div`
   display: flex;
+  width: 100%;
+  justify-content: space-between;
 `;
 const PickTimeContainerHalf = styled.div`
-  width: 50%;
+  width: 48%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  padding: 0 10%;
-`;
-const PickTimeLabel = styled.p`
-  user-select: none;
-  text-align: center;
 `;
 const NoOrgInfo = styled.p`
   text-align: center;
@@ -105,12 +101,8 @@ function NoOrg() {
   ]);
   const [orgName, setOrgName] = useState("");
   const [region, setRegion] = useState("null");
-  const [startWork, setStartWork] = useState(
-    moment().startOf("day").add(8, "hours")
-  );
-  const [endWork, setEndWork] = useState(
-    moment().startOf("day").add(20, "hours")
-  );
+  const [startWork, setStartWork] = useState("08:00");
+  const [endWork, setEndWork] = useState("20:00");
   const { token } = useAuth();
   const navigate = useNavigate();
 
@@ -173,7 +165,6 @@ function NoOrg() {
               disabled={isLoading}
             />
             <Select
-              defaultOptions={[]}
               options={regionOptions}
               loading={isLoading}
               setValue={setRegion}
@@ -207,12 +198,18 @@ function NoOrg() {
             })}
             <PickTimeContainer>
               <PickTimeContainerHalf>
-                <PickTimeLabel>Выберите время открытия</PickTimeLabel>
-                <TimePicker step={10} time={startWork} setTime={setStartWork} />
+                <TimePicker
+                  time={startWork}
+                  setTime={setStartWork}
+                  label="Время открытия"
+                />
               </PickTimeContainerHalf>
               <PickTimeContainerHalf>
-                <PickTimeLabel>Выберите время закрытия</PickTimeLabel>
-                <TimePicker step={10} time={endWork} setTime={setEndWork} />
+                <TimePicker
+                  time={endWork}
+                  setTime={setEndWork}
+                  label="Время закрытия"
+                />
               </PickTimeContainerHalf>
             </PickTimeContainer>
           </InputsContainer>
@@ -226,8 +223,8 @@ function NoOrg() {
               });
               data.name = orgName;
               data.region = region;
-              data.start_work = moment(startWork).format("HH:mm");
-              data.end_work = moment(endWork).format("HH:mm");
+              data.start_work = startWork;
+              data.end_work = endWork;
               newOrganization(setIsLoading, token, data, () => navigate(0));
             }}
             disabled={isLoading}

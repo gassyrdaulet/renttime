@@ -1,11 +1,11 @@
 import styled from "styled-components";
 
-const InputContainer = styled.div`
-  margin-bottom: 10px;
+const Container = styled.div`
   user-select: none;
   width: 100%;
+  margin: ${(props) => props.style?.containerMargin};
 `;
-const InputField = styled.textarea`
+const Field = styled.textarea`
   resize: none;
   padding: 10px;
   width: 100%;
@@ -14,6 +14,7 @@ const InputField = styled.textarea`
   font-size: 16px;
   outline: none;
   transition: border-color 0.2s;
+  font-size: ${(props) => props.style?.fontSize}
   &:focus {
     border-color: blue;
   }
@@ -23,7 +24,7 @@ const InputField = styled.textarea`
     background-color: #eeeeee;
   }
 `;
-const InputWrapper = styled.span`
+const Wrapper = styled.span`
   position: relative;
 `;
 const LabelText = styled.p`
@@ -32,43 +33,29 @@ const LabelText = styled.p`
   text-overflow: ellipsis;
   white-space: nowrap;
 `;
-const RightIcon = styled.div`
-  position: absolute;
-  right: 5px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  & svg {
-    width: 20px;
-  }
-`;
 
 const MyTextarea = ({
+  margin = "0 0 10px 0",
+  onChange = () => {},
+  fontSize = 16,
+  spellCheck = false,
   placeholder,
   label,
-  type,
   value,
-  onChange,
   disabled,
-  autoComplete,
   inputMode,
-  right,
   inputRef,
   max,
-  onClickRight = () => {},
 }) => {
   return (
-    <InputContainer>
-      <LabelText>{label}</LabelText>
-      <InputWrapper>
-        <InputField
+    <Container style={{ containerMargin: margin }}>
+      {label && <LabelText>{label}</LabelText>}
+      <Wrapper>
+        <Field
+          style={{ areaFontSize: fontSize }}
           placeholder={placeholder}
-          spellCheck={false}
+          spellCheck={spellCheck}
           disabled={disabled}
-          type={type}
           ref={inputRef}
           value={value}
           inputMode={inputMode}
@@ -81,11 +68,9 @@ const MyTextarea = ({
             }
             onChange(e);
           }}
-          autoComplete={autoComplete}
         />
-        <RightIcon onClick={onClickRight}>{right}</RightIcon>
-      </InputWrapper>
-    </InputContainer>
+      </Wrapper>
+    </Container>
   );
 };
 

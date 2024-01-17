@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Groups from "../components/Groups";
 import EditUsersForm from "../components/EditUsersForm";
 import EditPaymentMethodsForm from "../components/EditPaymentMethodsForm";
+import EditOrganizationProfile from "../components/EditOrganizationProfile";
 
 const MainContent = styled.div`
   display: flex;
@@ -35,6 +36,12 @@ function Settings() {
       ),
       methods: (
         <EditPaymentMethodsForm
+          isLoading={switchLoading}
+          setIsLoading={setSwitchLoading}
+        />
+      ),
+      organization: (
+        <EditOrganizationProfile
           isLoading={switchLoading}
           setIsLoading={setSwitchLoading}
         />

@@ -6,7 +6,7 @@ import useAuth from "../hooks/useAuth";
 import Switch from "./Switch";
 import { newDiscount } from "../api/OrderApi";
 import moment from "moment";
-import DatePicker from "./DatePicker";
+import DateTimePicker from "./DateTimePicker";
 import MyTextarea from "./MyTextarea";
 
 const CreateDiscountFormWrapper = styled.form`
@@ -121,12 +121,11 @@ function CreateDiscountForm({
               setChecked={setOwnDate}
             />
             {ownDate && (
-              <DatePicker
+              <DateTimePicker
                 disabled={createDiscountLoading}
                 label="Дата продления"
-                selectedDate={date}
-                handleDateChange={setDate}
-                timeFormat="HH:mm"
+                dateTime={date}
+                setDateTime={setDate}
               />
             )}
           </InputsContainer>

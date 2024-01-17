@@ -4,7 +4,7 @@ import useAuth from "../hooks/useAuth";
 import FormLayout from "./FormLayout";
 import Switch from "./Switch";
 import { createDebt } from "../api/ClientApi";
-import DatePicker from "./DatePicker";
+import DateTimePicker from "./DateTimePicker";
 import MyTextarea from "./MyTextarea";
 import moment from "moment";
 
@@ -53,7 +53,7 @@ function CreateDebtForm({ isLoading, setIsLoading, clientId, next }) {
             data[item.name] = item.value;
           });
           if (ownDate) {
-            data.date = date;
+            data.date = moment(date).toDate();
           }
           if (comment) {
             data.comment = comment;
@@ -110,12 +110,11 @@ function CreateDebtForm({ isLoading, setIsLoading, clientId, next }) {
             setChecked={setOwnDate}
           />
           {ownDate && (
-            <DatePicker
+            <DateTimePicker
               disabled={isLoading}
               label="Дата"
-              selectedDate={date}
-              handleDateChange={setDate}
-              timeFormat="HH:mm"
+              dateTime={date}
+              setDateTime={setDate}
             />
           )}
         </div>

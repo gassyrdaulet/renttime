@@ -15,6 +15,7 @@ export default function useAuth() {
     organizationId,
     confrimModal,
     setConfirmModal,
+    orgData,
   } = useContext(Context);
   return {
     setFixed,
@@ -29,5 +30,6 @@ export default function useAuth() {
     organizationId,
     confrimModal,
     setConfirmModal,
+    orgData,
   };
 }

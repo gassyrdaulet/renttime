@@ -3,7 +3,7 @@ import ContainerLayout from "../components/ContainerLayout";
 import CredButtons from "../components/CredButtons";
 import Modal from "../components/Modal";
 import { FaPlusSquare } from "react-icons/fa";
-import CreateNewOrder from "../components/CreateNewOrder";
+import CreateOrder from "../components/CreateOrder";
 import { getAllOrders } from "../api/OrderApi";
 import useAuth from "../hooks/useAuth";
 import styled from "styled-components";
@@ -117,9 +117,9 @@ function Orders() {
   );
   const [dateRange, setDateRange] = useState(false);
   const [firstDate, setFirstDate] = useState(
-    moment().subtract(1, "day").startOf("day")
+    moment().subtract(1, "day").format("YYYY-MM-DD")
   );
-  const [secondDate, setSecondDate] = useState(moment().endOf("day"));
+  const [secondDate, setSecondDate] = useState(moment().format("YYYY-MM-DD"));
   const [dateType, setDateType] = useState(
     localStorage.getItem("ordersDateType")
       ? localStorage.getItem("ordersDateType")
@@ -342,7 +342,7 @@ function Orders() {
         onlyByClose={true}
         noEscape={createNewOrderLoading}
       >
-        <CreateNewOrder
+        <CreateOrder
           createNewOrderLoading={createNewOrderLoading}
           setCreateNewOrderLoading={setCreateNewOrderLoading}
           next={() => {
@@ -416,18 +416,14 @@ function Orders() {
                   <DatePicker
                     disabled={ordersLoading}
                     label="Дата от"
-                    timeFormat={false}
-                    selectedDate={firstDate}
-                    handleDateChange={setFirstDate}
-                    dateTimeInputFormat="DD.MM.YYYY HH:mm:ss"
+                    date={firstDate}
+                    setDate={setFirstDate}
                   />
                   <DatePicker
                     disabled={ordersLoading}
                     label="Дата до"
-                    timeFormat={false}
-                    selectedDate={secondDate}
-                    handleDateChange={setSecondDate}
-                    dateTimeInputFormat="DD.MM.YYYY HH:mm:ss"
+                    date={secondDate}
+                    setDate={setSecondDate}
                   />
                 </FilterSortModalInputContainer>
               )}

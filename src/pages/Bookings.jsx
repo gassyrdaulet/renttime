@@ -122,9 +122,9 @@ function Workshifts() {
   const navigate = useNavigate();
   const params = useParams();
   const [firstDate, setFirstDate] = useState(
-    moment().subtract(1, "month").format("YYYY-MM-DD")
+    moment().subtract(1, "month").startOf("day")
   );
-  const [secondDate, setSecondDate] = useState(moment().format("YYYY-MM-DD"));
+  const [secondDate, setSecondDate] = useState(moment().endOf("day"));
   const { confirm } = useConfirm();
 
   const fetchData = useCallback(() => {
@@ -521,14 +521,18 @@ function Workshifts() {
                 <DatePicker
                   disabled={workshiftsLoading}
                   label="Дата от"
-                  date={firstDate}
-                  setDate={setFirstDate}
+                  timeFormat={false}
+                  selectedDate={firstDate}
+                  handleDateChange={setFirstDate}
+                  dateTimeInputFormat="DD.MM.YYYY HH:mm:ss"
                 />
                 <DatePicker
                   disabled={workshiftsLoading}
                   label="Дата до"
-                  date={secondDate}
-                  setDate={setSecondDate}
+                  timeFormat={false}
+                  selectedDate={secondDate}
+                  handleDateChange={setSecondDate}
+                  dateTimeInputFormat="DD.MM.YYYY HH:mm:ss"
                 />
               </FilterSortModalInputContainer>
             </FilterSortModalInputsContainer>

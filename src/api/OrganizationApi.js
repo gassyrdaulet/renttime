@@ -255,7 +255,7 @@ export const grantPrivilege = async (
     )
     .then(() => {
       next();
-      toast.success("Доступ успешно предоставлен", { draggable: false });
+      toast.success("Доступ успешно сменен", { draggable: false });
     })
     .catch((e) => {
       const errMsg = e?.response?.data?.message;
@@ -355,6 +355,48 @@ export const getWorkshift = async (setLoading, params, token, setWorkshift) => {
     })
     .catch((e) => {
       console.log(e);
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const getOrganization = async (setLoading, token, setData) => {
+  setLoading(true);
+  axiosNT
+    .get(`/api/organization/getorganization`, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(({ data }) => {
+      setData(data);
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const editOrganization = async (
+  setLoading,
+  body,
+  token,
+  next = () => {}
+) => {
+  setLoading(true);
+  axiosNT
+    .post(`/api/organization/editorganization`, body, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      toast.success("Профиль успешно сохранен", { draggable: false });
+      next();
+    })
+    .catch((e) => {
       const errMsg = e?.response?.data?.message;
       toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
     })

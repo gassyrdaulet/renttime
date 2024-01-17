@@ -246,7 +246,7 @@ function PayOffForm({
         }
         goods.push({
           specieId: orderGood.specie.id,
-          specieCode: orderGood.specie.code,
+          specieCode: `${orderGood.good.id}/${orderGood.specie.id}`,
         });
       });
       delivery.archiveOrderInfo?.orderGoods.forEach((orderGood) => {
@@ -257,7 +257,7 @@ function PayOffForm({
         }
         goods.push({
           specieId: orderGood.specie.id,
-          specieCode: orderGood.specie.code,
+          specieCode: `${orderGood.good.id}/${orderGood.specie.id}`,
         });
       });
     }
@@ -329,7 +329,7 @@ function PayOffForm({
           {goodsToReturn.length === 0 && <p>Нет</p>}
           {goodsToReturn.map((good, index) => (
             <p key={good.specieId}>
-              {index + 1}. {String(good.specieCode).padStart(10, "0")}
+              {index + 1}. {good.specieCode}
             </p>
           ))}
         </div>

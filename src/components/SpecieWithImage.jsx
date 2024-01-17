@@ -89,7 +89,7 @@ function SpecieWithImage({
       {
         title: "Инв. номер",
         id: 2,
-        value: String(itemInfo?.specie?.code).padStart(10, "0"),
+        value: `${itemInfo.good.id}/${itemInfo.specie.id}`,
       },
     ],
     [itemInfo, tariff, currency]

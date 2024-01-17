@@ -90,6 +90,7 @@ function SpecieItem({
   marked,
   editButton,
   next,
+  code,
   cursorType = "pointer",
   editLoading,
   setEditLoading,
@@ -102,7 +103,7 @@ function SpecieItem({
         title: "ID",
       },
       {
-        value: String(specieItem?.["code"]).padStart(10, "0"),
+        value: code,
         title: "Инв. номер",
         userSelect: "inherit",
       },
@@ -111,7 +112,7 @@ function SpecieItem({
         title: "Заказ",
       },
     ],
-    [specieItem]
+    [specieItem, code]
   );
   const secondHalf = useMemo(
     () => [

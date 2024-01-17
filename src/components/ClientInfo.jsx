@@ -387,7 +387,6 @@ function ClientInfo({
         setSelectedClientInfo,
         selectedClient.id,
         (data) => {
-          console.log(data);
           getDebts(
             setAisoipLoading,
             token,

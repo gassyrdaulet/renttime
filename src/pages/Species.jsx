@@ -144,7 +144,6 @@ function Species() {
   const sortByOptions = useMemo(
     () => [
       { id: "id", name: "По ID" },
-      { id: "code", name: "По Инв. номеру" },
       { id: "good", name: "По карточкам" },
       { id: "status", name: "По статусу" },
     ],
@@ -314,7 +313,7 @@ function Species() {
       species.map((item, index) => ({
         id: item.id,
         index: index + 1 + (page - 1) * pageSize,
-        code: String(item["code"]).padStart(10, "0"),
+        code: `${item.good}/${item.id}`,
         status: SPECIE_STATUSES[item.status]?.toUpperCase(),
         order: item.order,
         goodName: `${item.goodInfo.name} (ID: ${item.goodInfo.id})`,

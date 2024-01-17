@@ -33,7 +33,7 @@ import Loading from "../components/Loading";
 import Modal from "../components/Modal";
 import CreatePaymentForm from "../components/CreatePaymentForm";
 import CreateExtensionForm from "../components/CreateExtensionForm";
-import CreateNewDelivery from "../components/CreateNewDelivery";
+import CreateDelivery from "../components/CreateDelivery";
 import ConfirmModal from "../components/ConfirmModal";
 import Switch from "../components/Switch";
 import CreateDiscountForm from "../components/CreateDiscountForm";
@@ -42,7 +42,7 @@ import BlueLinkButton from "../components/BlueLinkButton";
 import EditDeliveryForm from "../components/EditDeliveryForm";
 import { cancelDelivery } from "../api/DeliveriesApi";
 import { FaMinusCircle } from "react-icons/fa";
-import CreateNewViolationForm from "../components/CreateNewViolationForm";
+import CreateNewViolationForm from "../components/CreateViolationForm";
 
 const {
   TARIFF_MOMENT_KEYS,
@@ -511,10 +511,26 @@ function OrderDetails() {
       },
       { value: "Пол и возвраст", type: "rowTitle" },
       {
-        value: `${GENDERS[orderInfo.clientInfo?.gender]}, ${moment().diff(
-          moment(orderInfo.clientInfo?.paper_person_id?.slice(0, 6), "YYMMDD"),
-          "years"
-        )}`,
+        value: `${GENDERS[orderInfo.clientInfo?.gender]} ${
+          isNaN(
+            moment().diff(
+              moment(
+                orderInfo.clientInfo?.paper_person_id?.slice(0, 6),
+                "YYMMDD"
+              ),
+              "years"
+            )
+          )
+            ? ""
+            : ", " +
+              moment().diff(
+                moment(
+                  orderInfo.clientInfo?.paper_person_id?.slice(0, 6),
+                  "YYMMDD"
+                ),
+                "years"
+              )
+        }`,
         type: "rowValue",
       },
       { value: "Дата регистрации и количество заказов", type: "rowTitle" },
@@ -989,7 +1005,7 @@ function OrderDetails() {
         noEscape={editLoading || isLoading}
         onlyByClose={true}
       >
-        <CreateNewDelivery
+        <CreateDelivery
           cellphone={orderInfo.clientInfo?.cellphone}
           address={orderInfo.clientInfo?.address}
           createDeliveryLoading={editLoading}

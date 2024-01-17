@@ -1,26 +1,13 @@
-import { useMemo, useState, useEffect } from "react";
-import { editClientKZ, getClientByIdKZ } from "../api/ClientApi";
+import { useMemo } from "react";
+import { createNewClientKZ } from "../api/ClientApi";
 import useAuth from "../hooks/useAuth";
 import config from "../config/config.json";
 import InputsLayout from "./InputsLayout";
-import moment from "moment";
 
 const { GENDERS, PAPER_AUTHORITY } = config;
 
-function EditClientForm({
-  next = () => {},
-  isLoading,
-  setIsLoading,
-  clientId,
-}) {
-  const [clientInfo, setClientInfo] = useState();
-  const [clientInfoLoading, setClientInfoLoading] = useState(true);
-  const { token } = useAuth();
-
-  useEffect(() => {
-    getClientByIdKZ(setClientInfoLoading, token, setClientInfo, clientId);
-  }, [clientId, token]);
-
+function CreateNewClient({ next = () => {}, isLoading, setIsLoading }) {
+  const { token, orgData } = useAuth();
   const authorityOptions = useMemo(() => {
     try {
       return Object.keys(PAPER_AUTHORITY).map((key) => ({
@@ -43,9 +30,6 @@ function EditClientForm({
   }, []);
 
   const inputs = useMemo(() => {
-    if (!clientInfo) {
-      return [];
-    }
     return [
       [
         [
@@ -53,7 +37,7 @@ function EditClientForm({
             {
               id: "paper_person_id",
               type: "text",
-              value: clientInfo.paper_person_id,
+              value: "",
               label: "ИИН *",
             },
           ],
@@ -61,7 +45,7 @@ function EditClientForm({
             {
               id: "paper_serial_number",
               type: "text",
-              value: clientInfo.paper_serial_number,
+              value: "",
               label: "Номер документа *",
             },
           ],
@@ -70,9 +54,7 @@ function EditClientForm({
               id: "paper_authority",
               type: "select",
               options: authorityOptions,
-              value: clientInfo.paper_authority
-                ? clientInfo.paper_authority
-                : "undefined",
+              value: "undefined",
               label: "Выдано",
             },
           ],
@@ -80,7 +62,7 @@ function EditClientForm({
             {
               id: "cellphone",
               type: "text",
-              value: clientInfo.cellphone,
+              value: "",
               label: "Номер телефона *",
             },
           ],
@@ -88,7 +70,7 @@ function EditClientForm({
             {
               id: "second_name",
               type: "text",
-              value: clientInfo.second_name,
+              value: "",
               label: "Фамилия *",
             },
           ],
@@ -96,7 +78,7 @@ function EditClientForm({
             {
               id: "name",
               type: "text",
-              value: clientInfo.name,
+              value: "",
               label: "Имя *",
             },
           ],
@@ -104,7 +86,7 @@ function EditClientForm({
             {
               id: "father_name",
               type: "text",
-              value: clientInfo.father_name,
+              value: "",
               label: "Отчество",
             },
           ],
@@ -112,7 +94,7 @@ function EditClientForm({
             {
               id: "born_region",
               type: "text",
-              value: clientInfo.born_region,
+              value: "",
               label: "Место рождения",
             },
           ],
@@ -120,7 +102,7 @@ function EditClientForm({
             {
               id: "nationality",
               type: "text",
-              value: clientInfo.nationality,
+              value: "",
               label: "Национальность",
             },
           ],
@@ -128,7 +110,7 @@ function EditClientForm({
             {
               id: "city",
               type: "text",
-              value: clientInfo.city,
+              value: orgData?.city ? orgData.city : "",
               label: "Город",
             },
           ],
@@ -136,7 +118,7 @@ function EditClientForm({
             {
               id: "address",
               type: "text",
-              value: clientInfo.address,
+              value: "",
               label: "Район и адрес",
             },
           ],
@@ -144,11 +126,9 @@ function EditClientForm({
             {
               id: "paper_givendate",
               type: "date",
-              value: moment(clientInfo.paper_givendate).isValid()
-                ? moment(clientInfo.paper_givendate).format("YYYY-MM-DD")
-                : "",
+              value: "",
               switchLabel: "Выбрать дату выдачи документа",
-              switch: clientInfo.paper_givendate ? true : false,
+              switch: true,
               label: "Дата выдачи документа",
             },
           ],
@@ -156,7 +136,7 @@ function EditClientForm({
             {
               id: "gender",
               type: "select",
-              value: clientInfo.gender ? clientInfo.gender : "undefined",
+              value: "undefined",
               label: "Пол",
               options: genderOptions,
             },
@@ -165,14 +145,14 @@ function EditClientForm({
             {
               id: "email",
               type: "text",
-              value: clientInfo.email,
+              value: "",
               label: "Адрес эл. почты",
             },
           ],
         ],
       ],
     ];
-  }, [authorityOptions, genderOptions, clientInfo]);
+  }, [authorityOptions, genderOptions, orgData.city]);
 
   const buttons = useMemo(() => {
     return [
@@ -180,25 +160,14 @@ function EditClientForm({
         id: 1,
         text: "Сохранить",
         onClick: (data) => {
-          editClientKZ(
-            setIsLoading,
-            token,
-            { client_id: clientId, ...data },
-            next
-          );
+          createNewClientKZ(setIsLoading, token, data, next);
         },
       },
     ];
-  }, [next, token, setIsLoading, clientId]);
+  }, [next, token, setIsLoading]);
 
   return (
-    <InputsLayout
-      loading={clientInfoLoading}
-      inputs={inputs}
-      disabled={isLoading}
-      buttons={buttons}
-    />
+    <InputsLayout inputs={inputs} disabled={isLoading} buttons={buttons} />
   );
 }
-
-export default EditClientForm;
+export default CreateNewClient;

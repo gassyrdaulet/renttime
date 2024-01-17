@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { Context } from "./context";
 import AppRouter from "./components/AppRouter";
 import Header from "./components/Header/Header";
-import { getAuth, onAuthStateChanged, onIdTokenChanged } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import Loading from "./components/Loading";
 import { ping, authCheck } from "./api/AuthApi";
 import { ToastContainer } from "react-toastify";
@@ -30,6 +30,7 @@ export default function App() {
   const [confirmModal, setConfirmModal] = useState(false);
   const [text, setText] = useState("");
   const [organizationId, setOrganizationId] = useState();
+  const [orgData, setOrgData] = useState();
   const [isNoOrgLoading, setIsNoOrgLoading] = useState(false);
   const [token, setToken] = useState("");
   const [currency] = useState("KZT");
@@ -65,16 +66,20 @@ export default function App() {
   }, [navigate, isAuth, isNoOrg, isError]);
 
   useEffect(() => {
-    try {
-      const auth = getAuth();
-      onIdTokenChanged(auth, async (user) => {
-        if (user) {
-          setToken(await user.getIdToken());
-        }
-      });
-    } catch (e) {
-      console.log(e);
-    }
+    const updateToken = async () => {
+      const user = getAuth().currentUser;
+      if (user) {
+        const newToken = await user.getIdToken(true);
+        setToken(newToken);
+        console.log(
+          "Token changed",
+          new Date().toLocaleTimeString(),
+          newToken?.substring(newToken?.length - 10, newToken?.length)
+        );
+      }
+    };
+    const intervalId = setInterval(updateToken, 30 * 60 * 1000);
+    return () => clearInterval(intervalId);
   }, []);
 
   useEffect(() => {
@@ -105,7 +110,14 @@ export default function App() {
 
   useEffect(() => {
     if (isAuth) {
-      ping(setIsNoOrg, setIsNoOrgLoading, setIsError, token, setOrganizationId);
+      ping(
+        setIsNoOrg,
+        setIsNoOrgLoading,
+        setIsError,
+        token,
+        setOrganizationId,
+        setOrgData
+      );
     }
   }, [isAuth, token]);
 
@@ -135,6 +147,7 @@ export default function App() {
           setConfirmModal,
           text,
           setText,
+          orgData,
         }}
       >
         {isAuthLoading && (

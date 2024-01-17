@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import useAuth from "../hooks/useAuth";
 import FormLayout from "./FormLayout";
 import Switch from "./Switch";
-import DatePicker from "./DatePicker";
+import DateTimePicker from "./DateTimePicker";
 import MyTextarea from "./MyTextarea";
 import moment from "moment";
 import Select from "./Select";
@@ -46,7 +46,7 @@ function CreateNewViolationForm({
             specie_violation_type: type,
           };
           if (ownDate) {
-            data.date = date;
+            data.date = moment(date).toDate();
           }
           if (comment) {
             data.comment = comment;
@@ -73,7 +73,7 @@ function CreateNewViolationForm({
     () =>
       species.map((item) => ({
         id: item.specie.id,
-        name: `${item.specie.code} - ${item.good.name}`,
+        name: `${item.good.id}/${item.specie.id} - ${item.good.name}`,
       })),
     [species]
   );
@@ -106,12 +106,11 @@ function CreateNewViolationForm({
             setChecked={setOwnDate}
           />
           {ownDate && (
-            <DatePicker
+            <DateTimePicker
               disabled={isLoading}
               label="Дата"
-              selectedDate={date}
-              handleDateChange={setDate}
-              timeFormat="HH:mm"
+              dateTime={date}
+              setDateTime={setDate}
             />
           )}
           <MyTextarea

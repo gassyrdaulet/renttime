@@ -6,7 +6,7 @@ import cl from "../styles/Goods.module.css";
 import CredButtons from "../components/CredButtons";
 import ControlPanelButtons from "../components/ControlPanelButtons";
 import Modal from "../components/Modal";
-import CreateNewClient from "../components/CreateNewClient";
+import CreateNewClient from "../components/CreateClient";
 import Loading from "../components/Loading";
 import Pagination from "../components/Pagination";
 import Select from "../components/Select";

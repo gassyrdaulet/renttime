@@ -1,5 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
-import MyInput from "./MyInput";
+import { useState, useMemo } from "react";
 import MyButton from "./MyButton";
 import styled from "styled-components";
 import Select from "./Select";
@@ -57,18 +56,6 @@ function CreateSpecieForm({
   good_id,
   next,
 }) {
-  const [inputs, setInputs] = useState([
-    {
-      id: 0,
-      title: "Инвентарьный номер",
-      value: "0000000000",
-      name: "code",
-      inputMode: "numeric",
-      integer: true,
-      unsigned: true,
-      zerofill: 10,
-    },
-  ]);
   const { token } = useAuth();
   const [status, setStatus] = useState("available");
 
@@ -79,39 +66,11 @@ function CreateSpecieForm({
     }));
   }, []);
 
-  const handleInputChange = useCallback((id, value) => {
-    setInputs((prev) => {
-      const temp = [...prev];
-      for (let item of temp) {
-        if (item.id === id) {
-          item.value = value;
-          break;
-        }
-      }
-      return temp;
-    });
-  }, []);
-
   return (
     <CreateSpecieFormWrapper>
       <CreateSpecieFormContainer>
         <CreateSpecieInputContainers>
           <InputsContainer>
-            {inputs.map((item) => (
-              <MyInput
-                onChange={(e) => {
-                  handleInputChange(item.id, e.target.value);
-                }}
-                label={item.title}
-                key={item.id}
-                value={item.value}
-                disabled={createSpecieLoading}
-                inputMode={item.inputMode}
-                integer={item.integer}
-                unsigned={item.unsigned}
-                zerofill={item.zerofill}
-              />
-            ))}
             <Select
               disabled={true}
               label="Статус"
@@ -132,15 +91,10 @@ function CreateSpecieForm({
           text="Сохранить"
           onClick={(e) => {
             e.preventDefault();
-            const specieData = {};
-            inputs.forEach((item) => {
-              specieData[item.name] = item.value;
-            });
             createNewSpecie(
               setCreateSpecieLoading,
               token,
               {
-                ...specieData,
                 status,
                 good_id,
               },

@@ -109,7 +109,9 @@ function ClientDetails() {
       { value: "Информация о клиенте", type: "partTitle" },
       { value: "ФИО", type: "rowTitle" },
       {
-        value: `${data.second_name} ${data.name} ${data.father_name}`,
+        value: `${data.second_name} ${data.name} ${
+          data.father_name ? data.father_name : ""
+        }`,
         type: "rowValue",
       },
       { value: "Номер телефона", type: "rowTitle" },
@@ -154,10 +156,20 @@ function ClientDetails() {
       },
       { value: "Пол и возраст", type: "rowTitle" },
       {
-        value: `${GENDERS[data?.gender]}, ${moment().diff(
-          moment(data.paper_person_id?.slice(0, 6), "YYMMDD"),
-          "years"
-        )}`,
+        value: `${GENDERS[data?.gender]} ${
+          isNaN(
+            moment().diff(
+              moment(data.paper_person_id?.slice(0, 6), "YYMMDD"),
+              "years"
+            )
+          )
+            ? ""
+            : ", " +
+              moment().diff(
+                moment(data.paper_person_id?.slice(0, 6), "YYMMDD"),
+                "years"
+              )
+        }`,
         type: "rowValue",
       },
       { value: "Национальность", type: "rowTitle" },

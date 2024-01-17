@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import useAuth from "../hooks/useAuth";
 import debounce from "lodash.debounce";
 import Modal from "./Modal";
-import CreateNewClient from "./CreateNewClient";
+import CreateNewClient from "./CreateClient";
 import { searchClientKZ } from "../api/ClientApi";
 import AsyncSelect from "./AsyncSelect";
 import styled from "styled-components";

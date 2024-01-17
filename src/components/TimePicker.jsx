@@ -1,25 +1,24 @@
-import Datetime from "react-datetime";
-import styled from "styled-components";
-import "react-datetime/css/react-datetime.css";
+import Input from "./Input";
 
-const Label = styled.p`
-  user-select: none;
-`;
-
-const CustomTimePicker = ({ time, label, setTime, step }) => {
+function TimePicker({
+  margin,
+  time = "00:00",
+  setTime,
+  step,
+  label,
+  disabled,
+}) {
   return (
-    <div>
-      <Label>{label}</Label>
-      <Datetime
-        value={time}
-        timeFormat="HH:mm"
-        dateFormat={false}
-        timeConstraints={{ minutes: { step } }}
-        input={false}
-        onChange={(t) => setTime(t)}
-      />
-    </div>
+    <Input
+      label={label}
+      margin={margin}
+      value={time}
+      onChange={(e) => setTime(e.target.value)}
+      type="time"
+      step={step}
+      disabled={disabled}
+    />
   );
-};
+}
 
-export default CustomTimePicker;
+export default TimePicker;

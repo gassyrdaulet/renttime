@@ -8,7 +8,7 @@ import Switch from "./Switch";
 import { getMethods } from "../api/OrganizationApi";
 import { newPayment } from "../api/OrderApi";
 import moment from "moment";
-import DatePicker from "./DatePicker";
+import DateTimePicker from "./DateTimePicker";
 
 const CreatePaymentFormWrapper = styled.form`
   display: flex;
@@ -147,12 +147,11 @@ function CreatePaymentForm({
               setChecked={setOwnDate}
             />
             {ownDate && (
-              <DatePicker
+              <DateTimePicker
                 disabled={createPaymentLoading}
                 label="Дата платежа"
-                selectedDate={date}
-                handleDateChange={setDate}
-                timeFormat="HH:mm"
+                dateTime={date}
+                setDateTime={setDate}
               />
             )}
           </InputsContainer>
