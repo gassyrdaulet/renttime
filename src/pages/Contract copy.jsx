@@ -239,7 +239,6 @@ function Contract() {
           iin: orderData.client_paper_person_id,
           sign_date: orderData.sign_date,
           sms_date: orderData.last_sign_sms,
-          sms_id: orderData.sign_date,
           serial_no: orderData.client_paper_serial_number,
           client_cp: orderData.client_cellphone,
         };

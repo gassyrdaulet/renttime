@@ -1,8 +1,6 @@
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { getFormattedContent } from "../service/DocumentService";
-import { generatePDF } from "../service/DocumentService";
-import { getContract, sendCode, confirmCode, getDocx } from "../api/PublicApi";
+import { sendCode, confirmCode, getDocx } from "../api/PublicApi";
 import Loading from "../components/Loading";
 import MyButton from "../components/MyButton";
 import Modal from "../components/Modal";
@@ -10,7 +8,6 @@ import MyInput from "../components/MyInput";
 import styled from "styled-components";
 import BlueLinkButton from "../components/BlueLinkButton";
 import config from "../config/config.json";
-import QRCode from "qrcode-generator";
 import {
   BiCheckCircle,
   BiMessageAlt,
@@ -18,9 +15,7 @@ import {
   BiPlusCircle,
 } from "react-icons/bi";
 
-// ("https://apryse.com/blog/webviewer/how-view-documents-in-a-react-app");
-
-const { DOMEN, SIGN_TYPES } = config;
+const { SIGN_TYPES } = config;
 
 const ContractPageWrapper = styled.div`
   display: block;
@@ -31,82 +26,8 @@ const ContractContainer = styled.div`
   display: block;
   padding: 20px;
   width: 100%;
+  height: 100vh;
   min-height: 100vh;
-`;
-const ContractPage = styled.div`
-  overflow: hidden;
-  display: block;
-  margin: 0 auto;
-  width: ${(props) => props.style?.pageWidth}px;
-  min-height: ${(props) => props.style?.pageHeight}px;
-  padding-bottom: ${(props) => {
-    return props.style?.pagePadding;
-  }}px;
-  background-color: white;
-  box-shadow: 0 0 4px 4px rgba(0, 0, 0, 0.25);
-  margin-bottom: 20px;
-`;
-const ContractRow = styled.div`
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  width: 100%;
-  margin-bottom: ${(props) => props.style?.bottomMargin}px;
-`;
-const ContractItem = styled.div`
-  position: ${(props) => (props.style?.hidden ? "static" : "absolute")};
-  opacity: ${(props) => (props.style?.hidden ? "0" : "1")};
-  pointer-events: ${(props) => (props.style?.hidden ? "none" : "all")};
-  left: ${(props) => props.style?.textLeft}px;
-  font-size: ${(props) => props.style?.textSize}px;
-  font-weight: ${(props) => props.style?.textWeight};
-  width: ${(props) => props.style?.textWidth}px;
-  min-width: ${(props) => props.style?.textWidth}px;
-  color: ${(props) => props.style?.textColor};
-  transform: ${(props) =>
-    props.style?.textCenterAlign ? "translateX(-50%)" : ""};
-  text-align: ${(props) => (props.style?.textCenterAlign ? "center" : "")};
-  text-align: ${(props) => (props.style?.textFillAlign ? "justify" : "")};
-  font-family: ${(props) => props.style?.pageFont}, serif;
-  max-height: ${(props) => props.style?.textHeight};
-  padding-bottom: 1.5px;
-`;
-const ContractItemTable = styled.table`
-  position: ${(props) => (props.style?.hidden ? "static" : "absolute")};
-  opacity: ${(props) => (props.style?.hidden ? "0" : "1")};
-  pointer-events: ${(props) => (props.style?.hidden ? "none" : "all")};
-  left: ${(props) => props.style?.tableLeft}px;
-  font-size: ${(props) => props.style?.textSize}px;
-  font-weight: ${(props) => props.style?.textWeight};
-  width: ${(props) => props.style?.tableWidth}px;
-  color: ${(props) => props.style?.textColor};
-  border-collapse: collapse;
-`;
-const ContractItemQR = styled.div`
-  display: flex;
-  position: ${(props) => (props.style?.hidden ? "static" : "absolute")};
-  opacity: ${(props) => (props.style?.hidden ? "0" : "1")};
-  pointer-events: ${(props) => (props.style?.hidden ? "none" : "all")};
-  left: ${(props) => props.style?.itemLeft}px;
-  min-width: ${(props) => props.style?.itemWidth}px;
-  max-width: ${(props) => props.style?.itemWidth}px;
-  height: 55px;
-  max-height: 55px;
-  & > * {
-    margin-right: 5px;
-  }
-`;
-const ContractItemTableHeaderDigit = styled.th`
-  width: ${(props) => props.style?.cellWidth}px;
-  font-family: ${(props) => props.style?.pageFont};
-  border: ${(props) => props.style?.tableBorder};
-  padding: 5px;
-`;
-const ContractItemTableBodyDigit = styled.td`
-  text-align: ${(props) => props.style?.alignCenter && "center"};
-  font-family: ${(props) => props.style?.pageFont};
-  border: ${(props) => props.style?.tableBorder};
-  padding: 5px;
 `;
 const CenterContainer = styled.div`
   display: flex;
@@ -211,16 +132,12 @@ function Contract() {
             </Text>
             <ButtonsContainer>
               <MyButton
-                text="Скачать ДОГОВОР"
-                onClick={() => {}}
+                text="Скачать документ"
+                onClick={() => {
+                  window.open(doc);
+                }}
                 disabled={contractDataLoading}
                 margin="0 10px 0 0"
-              />
-              <MyButton
-                text="Скачать АКТ"
-                onClick={() => {}}
-                disabled={contractDataLoading}
-                margin="0"
               />
             </ButtonsContainer>
             <Text>История заказа:</Text>
@@ -278,10 +195,11 @@ function Contract() {
       ) : doc ? (
         <ContractContainer>
           <iframe
-            src={`https://docs.google.com/gviewer?url=${doc}&embedded=true`}
-            style={{ width: "100%", height: "800px" }}
-          ></iframe>
-          <a href={doc}>Перейти по ссылке</a>
+            title="Document"
+            width="100%"
+            height="100%"
+            src={`https://docs.google.com/gview?url=${doc}&embedded=true`}
+          />
         </ContractContainer>
       ) : (
         <div className="Center">

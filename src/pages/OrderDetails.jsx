@@ -54,6 +54,8 @@ const {
   DELIVERY_DIRECTIONS,
   DOMEN,
   DELIVERY_STATUSES,
+  PRODUCTION,
+  LOCAL_PORT,
   SIGN_TYPES,
 } = config;
 
@@ -179,10 +181,13 @@ function OrderDetails() {
         id: 6,
         title: "Скачать договор",
         icon: <BiDownload color="#00ccff" size={20} />,
-        onClick: () =>
-          window.open(
-            `${DOMEN}/contract/${organizationId}/${params.id}/${orderInfo.link_code}`
-          ),
+        onClick: () => {
+          const localHost = "http://" + window.location.hostname;
+          const finalHost = PRODUCTION ? DOMEN : localHost + ":" + LOCAL_PORT;
+          const url = `${finalHost}/contract/${organizationId}/${params.id}/${orderInfo.link_code}`;
+          console.log(url);
+          window.open(url);
+        },
       },
       {
         id: 7,
