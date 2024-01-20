@@ -71,15 +71,16 @@ function Order({ orderItem, onClick }) {
 
   const delay = useMemo(() => {
     const delay = moment().diff(
-      moment(orderItem.started_date)
-        .add(renttime, TARIFF_MOMENT_KEYS[orderItem.tariff])
-        .add(orderItem.forgive_lateness_ms, "milliseconds"),
+      moment(orderItem.planned_date).add(
+        orderItem.forgive_lateness_ms,
+        "milliseconds"
+      ),
       TARIFF_MOMENT_KEYS[orderItem.tariff]
     );
     if (delay > 0) {
       return delay + 1;
     } else return 0;
-  }, [orderItem, renttime]);
+  }, [orderItem]);
 
   const totals = useMemo(() => {
     let total = 0;
@@ -104,7 +105,8 @@ function Order({ orderItem, onClick }) {
       totalDeliveryCost += parseInt(item.delivery_price_for_customer);
     }
     total =
-      (renttimeTillFinished ? renttimeTillFinished : renttime + delay) * total +
+      (renttimeTillFinished ? renttimeTillFinished : renttime + delay + 1) *
+        total +
       totalDeliveryCost;
     const totalWithDiscount = total - discountSum;
     return {

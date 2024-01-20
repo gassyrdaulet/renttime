@@ -354,7 +354,6 @@ export const getWorkshift = async (setLoading, params, token, setWorkshift) => {
       setWorkshift(data);
     })
     .catch((e) => {
-      console.log(e);
       const errMsg = e?.response?.data?.message;
       toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
     })

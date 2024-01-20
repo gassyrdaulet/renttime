@@ -71,11 +71,6 @@ export default function App() {
       if (user) {
         const newToken = await user.getIdToken(true);
         setToken(newToken);
-        console.log(
-          "Token changed",
-          new Date().toLocaleTimeString(),
-          newToken?.substring(newToken?.length - 10, newToken?.length)
-        );
       }
     };
     const intervalId = setInterval(updateToken, 30 * 60 * 1000);

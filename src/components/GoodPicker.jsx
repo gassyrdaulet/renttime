@@ -263,7 +263,6 @@ function GoodPicker({ tariff, pickedGoods, setPickedGoods, disabled }) {
 
   const handleOnAsyncResultClick = useCallback(
     (specie) => {
-      console.log(specie);
       addGood({ specie, good: specie.goodInfo });
     },
     [addGood]
@@ -549,6 +548,7 @@ function GoodPicker({ tariff, pickedGoods, setPickedGoods, disabled }) {
             <Species>
               {fetchedSpecies.map((item) => (
                 <SpecieItem
+                  code={`${selectedGood.id}/${item.id}`}
                   marked={{
                     isMarked: markedSpecies[item.id],
                     markColor: "#ffd700",

@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { getFormattedContent } from "../service/DocumentService";
 import { generatePDF } from "../service/DocumentService";
-import { getContract, sendCode, confirmCode } from "../api/PublicApi";
+import { getContract, sendCode, confirmCode, getDocx } from "../api/PublicApi";
 import Loading from "../components/Loading";
 import MyButton from "../components/MyButton";
 import Modal from "../components/Modal";
@@ -18,6 +18,8 @@ import {
   BiPlusCircle,
 } from "react-icons/bi";
 
+// ("https://apryse.com/blog/webviewer/how-view-documents-in-a-react-app");
+
 const { DOMEN, SIGN_TYPES } = config;
 
 const ContractPageWrapper = styled.div`
@@ -28,7 +30,6 @@ const ContractPageWrapper = styled.div`
 const ContractContainer = styled.div`
   display: block;
   padding: 20px;
-  overflow: auto;
   width: 100%;
   min-height: 100vh;
 `;
@@ -171,25 +172,17 @@ function Contract() {
   const [confrimLoading, setConfirmLoading] = useState(false);
   const [sendSMSLoading, setSendSMSLoading] = useState(false);
   const [orderData, setOrderData] = useState({});
-  const [orgData, setOrgData] = useState({});
-  const [actTemplate, setActTemplate] = useState({});
-  const [contractTemplate, setContractTemplate] = useState({});
-  const [actContent, setActContent] = useState([]);
-  const [contractContent, setContractContent] = useState([]);
-  const actRef = useRef();
-  const contractRef = useRef();
+  const [doc, setDoc] = useState();
 
   const getContractCallback = useCallback(() => {
     if (frozenParams) {
-      getContract(
+      getDocx(
         setContractDataLoading,
         frozenParams.organization_id,
         frozenParams.order_id,
         frozenParams.contract_code,
-        setOrgData,
-        setOrderData,
-        setContractTemplate,
-        setActTemplate
+        setDoc,
+        setOrderData
       );
     }
   }, [frozenParams]);
@@ -198,209 +191,83 @@ function Contract() {
     getContractCallback();
   }, [getContractCallback]);
 
-  useEffect(() => {
-    if (actTemplate && contractTemplate) {
-      if (
-        Object.keys(actTemplate).length !== 0 &&
-        Object.keys(contractTemplate).length !== 0
-      ) {
-        getFormattedContent(
-          orderData,
-          orgData,
-          contractTemplate,
-          setActContent
-        );
-        getFormattedContent(
-          orderData,
-          orgData,
-          actTemplate,
-          setContractContent
-        );
-      }
-    }
-  }, [actTemplate, contractTemplate, orderData, orgData]);
-
-  useEffect(() => {
-    if (
-      orderData &&
-      Object.keys(orderData).length !== 0 &&
-      orderData.sign_type === "remote"
-    ) {
-      if (orderData.signed) {
-        const qrLink = QRCode(0, "H");
-        qrLink.addData(
-          `${DOMEN}/contract/${params.organization_id}/${params.order_id}/${params.contract_code}`
-        );
-        qrLink.make();
-        const qrClientData = QRCode(0, "L");
-        const clientData = {
-          iin: orderData.client_paper_person_id,
-          sign_date: orderData.sign_date,
-          sms_date: orderData.last_sign_sms,
-          sms_id: orderData.sign_date,
-          serial_no: orderData.client_paper_serial_number,
-          client_cp: orderData.client_cellphone,
-        };
-        qrClientData.addData(JSON.stringify(clientData));
-        qrClientData.make();
-        const qrLinkSvg = qrLink.createSvgTag({ margin: 0, scalable: true });
-        const qrClientDataSvg = qrClientData.createSvgTag({
-          margin: 0,
-          scalable: true,
-        });
-        const elements = document.getElementsByName("qrcodeclient");
-        for (let element of elements) {
-          if (element) {
-            element.innerHTML = qrLinkSvg + qrClientDataSvg;
-          }
-        }
-      }
-    }
-  }, [
-    orderData,
-    contractContent,
-    actContent,
-    params.contract_code,
-    params.order_id,
-    params.organization_id,
-  ]);
-
-  useEffect(() => {
-    if (orderData && Object.keys(orderData).length !== 0) {
-      const qrLink = QRCode(0, "H");
-      qrLink.addData(
-        `${DOMEN}/contract/${params.organization_id}/${params.order_id}/${params.contract_code}`
-      );
-      qrLink.make();
-      const qrOrgData = QRCode(0, "L");
-      const orgQrData = {
-        bin: orgData.kz_paper_bin,
-        sign_date: orderData.order_created_date,
-        org_cp: orderData.cellphone,
-      };
-      qrOrgData.addData(JSON.stringify(orgQrData));
-      qrOrgData.make();
-      const qrLinkSvg = qrLink.createSvgTag({ margin: 0, scalable: true });
-      const qrClientDataSvg = qrOrgData.createSvgTag({
-        margin: 0,
-        scalable: true,
-      });
-      const elements = document.getElementsByName("qrcodeorg");
-      for (let element of elements) {
-        if (element) {
-          element.innerHTML = qrLinkSvg + qrClientDataSvg;
-        }
-      }
-    }
-  }, [
-    orderData,
-    orgData,
-    contractContent,
-    actContent,
-    params.contract_code,
-    params.order_id,
-    params.organization_id,
-  ]);
-
-  const getContractPDF = useCallback(async () => {
-    const contractPdf = await generatePDF(
-      contractRef,
-      contractTemplate.width,
-      contractTemplate.height
-    );
-    var blob = contractPdf.output("blob");
-    window.open(URL.createObjectURL(blob));
-  }, [contractRef, contractTemplate]);
-
-  const getActPDF = useCallback(async () => {
-    const actPdf = await generatePDF(
-      actRef,
-      actTemplate.width,
-      actTemplate.height
-    );
-    var blob = actPdf.output("blob");
-    window.open(URL.createObjectURL(blob));
-  }, [actRef, actTemplate]);
-
   return (
     <ContractPageWrapper>
-      {Object.keys(contractTemplate).length !== 0 &&
-        Object.keys(actTemplate).length !== 0 && (
-          <CenterContainer>
-            <GrayWrapper>
-              <Text>
-                Вы находитесь на странице договора заказа аренды №
-                {orderData.order_id}
-              </Text>
-              <Text>
-                Если Вы являетесь арендатором, пожалуйста, прочтите условия
-                договора и ознакомьтесь с ним. Далее, если вы согласны, то
-                нажмите кнопку «Подтвердить согласие» в самом низу этой
-                страницы.
-              </Text>
-              <Text>
-                В случае если вас не устраивают эти условия, вы можете покинуть
-                эту страницу и договор не будет считаться действительным.
-              </Text>
-              <ButtonsContainer>
-                <MyButton
-                  text="Скачать ДОГОВОР"
-                  onClick={getContractPDF}
-                  disabled={contractDataLoading}
-                  margin="0 10px 0 0"
-                />
-                <MyButton
-                  text="Скачать АКТ"
-                  onClick={getActPDF}
-                  disabled={contractDataLoading}
-                  margin="0"
-                />
-              </ButtonsContainer>
-              <Text>История заказа:</Text>
+      {doc && (
+        <CenterContainer>
+          <GrayWrapper>
+            <Text>
+              Вы находитесь на странице договора заказа аренды №
+              {frozenParams.order_id}
+            </Text>
+            <Text>
+              Если Вы являетесь арендатором, пожалуйста, прочтите условия
+              договора и ознакомьтесь с ним. Далее, если вы согласны, то нажмите
+              кнопку «Подтвердить согласие» в самом низу этой страницы.
+            </Text>
+            <Text>
+              В случае если вас не устраивают эти условия, вы можете покинуть
+              эту страницу и договор не будет считаться действительным.
+            </Text>
+            <ButtonsContainer>
+              <MyButton
+                text="Скачать ДОГОВОР"
+                onClick={() => {}}
+                disabled={contractDataLoading}
+                margin="0 10px 0 0"
+              />
+              <MyButton
+                text="Скачать АКТ"
+                onClick={() => {}}
+                disabled={contractDataLoading}
+                margin="0"
+              />
+            </ButtonsContainer>
+            <Text>История заказа:</Text>
+            <StatusWrapper>
+              <StatusText>
+                <BiPlusCircle />
+                <p>Договор создан</p>
+              </StatusText>
+              {orderData.order_created_date}
+            </StatusWrapper>
+            <StatusWrapper>
+              <StatusText>
+                <BiMessageAlt />
+                <p>Сообщение с кодом отправлено</p>
+              </StatusText>
+              {orderData.last_sign_sms === "Invalid date"
+                ? "-"
+                : orderData.last_sign_sms}
+            </StatusWrapper>
+            <StatusWrapper>
+              <StatusText>
+                <BiCheckCircle />
+                <p>Договор подписан клиентом</p>
+              </StatusText>
+              {orderData.signed ? orderData.sign_date : "НЕТ"}
+            </StatusWrapper>
+            {orderData.signed && (
               <StatusWrapper>
                 <StatusText>
-                  <BiPlusCircle />
-                  <p>Договор создан</p>
+                  <BiPen />
+                  <p>Тип подписи</p>
                 </StatusText>
-                {orderData.order_created_date}
+                {SIGN_TYPES[orderData.sign_type]}
               </StatusWrapper>
-              <StatusWrapper>
-                <StatusText>
-                  <BiMessageAlt />
-                  <p>Сообщение с кодом отправлено</p>
-                </StatusText>
-                {orderData.last_sign_sms === "Invalid date"
-                  ? "-"
-                  : orderData.last_sign_sms}
-              </StatusWrapper>
-              <StatusWrapper>
-                <StatusText>
-                  <BiCheckCircle />
-                  <p>Договор подписан клиентом</p>
-                </StatusText>
-                {orderData.signed ? orderData.sign_date : "НЕТ"}
-              </StatusWrapper>
-              {orderData.signed && (
-                <StatusWrapper>
-                  <StatusText>
-                    <BiPen />
-                    <p>Тип подписи</p>
-                  </StatusText>
-                  {SIGN_TYPES[orderData.sign_type]}
-                </StatusWrapper>
-              )}
-              <StatusWrapper>
-                <StatusText>
-                  <BiCheckCircle />
-                  <p>Договор рассторгнут</p>
-                </StatusText>
-                {orderData.finished_date !== "Invalid date"
-                  ? orderData.finished_date
-                  : "НЕТ"}
-              </StatusWrapper>
-            </GrayWrapper>
-          </CenterContainer>
-        )}
+            )}
+            <StatusWrapper>
+              <StatusText>
+                <BiCheckCircle />
+                <p>Договор рассторгнут</p>
+              </StatusText>
+              {orderData.finished_date !== "Invalid date"
+                ? orderData.finished_date
+                : "НЕТ"}
+            </StatusWrapper>
+          </GrayWrapper>
+        </CenterContainer>
+      )}
       {contractDataLoading ? (
         <div className="Center">
           <GrayWrapper>
@@ -408,195 +275,13 @@ function Contract() {
             Загрузка договора...
           </GrayWrapper>
         </div>
-      ) : Object.keys(contractTemplate).length !== 0 &&
-        Object.keys(actTemplate).length !== 0 ? (
+      ) : doc ? (
         <ContractContainer>
-          <ContractPage
-            ref={contractRef}
-            style={{
-              pageWidth: contractTemplate?.width,
-              pageHeight: contractTemplate?.height,
-              pagePadding: contractTemplate?.padding,
-            }}
-          >
-            {actContent.map((dataRow, i) => (
-              <ContractRow key={i} style={dataRow.style}>
-                {dataRow.rowItems.map((dataItem, i) => {
-                  if (dataItem.type === "qrclient") {
-                    return (
-                      <ContractItemQR
-                        name="qrcodeclient"
-                        key={i}
-                        style={{ ...dataItem.style, hidden: dataItem.hidden }}
-                      />
-                    );
-                  }
-                  if (dataItem.type === "qrorg") {
-                    return (
-                      <ContractItemQR
-                        name="qrcodeorg"
-                        key={i}
-                        style={{ ...dataItem.style, hidden: dataItem.hidden }}
-                      />
-                    );
-                  }
-                  if (dataItem.type === "table") {
-                    if (dataItem?.table?.length === 0) {
-                      return "";
-                    }
-                    return (
-                      <ContractItemTable
-                        key={i}
-                        style={{ ...dataItem.style, hidden: dataItem.hidden }}
-                      >
-                        <thead>
-                          <tr>
-                            {dataItem.table[0].map((headerItem, i) => (
-                              <ContractItemTableHeaderDigit
-                                key={i}
-                                style={{
-                                  ...headerItem.style,
-                                  pageFont: contractTemplate.font,
-                                  tableBorder: dataItem?.style?.tableBorder,
-                                }}
-                              >
-                                {headerItem.value}
-                              </ContractItemTableHeaderDigit>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {dataItem.table
-                            .slice(1, dataItem.length)
-                            .map((row, i) => (
-                              <tr key={i}>
-                                {row.map((rowItem, i) => (
-                                  <ContractItemTableBodyDigit
-                                    style={{
-                                      ...rowItem.style,
-                                      pageFont: contractTemplate.font,
-                                      tableBorder: dataItem?.style?.tableBorder,
-                                    }}
-                                    key={i}
-                                  >
-                                    {rowItem.value}
-                                  </ContractItemTableBodyDigit>
-                                ))}
-                              </tr>
-                            ))}
-                        </tbody>
-                      </ContractItemTable>
-                    );
-                  }
-                  return (
-                    <ContractItem
-                      key={i}
-                      style={{
-                        ...dataItem.style,
-                        pageFont: contractTemplate.font,
-                        hidden: dataItem.hidden,
-                      }}
-                    >
-                      {dataItem.text}
-                    </ContractItem>
-                  );
-                })}
-              </ContractRow>
-            ))}
-          </ContractPage>
-          <ContractPage
-            ref={actRef}
-            style={{
-              pageWidth: actTemplate?.width,
-              pageHeight: actTemplate?.height,
-              pagePadding: actTemplate?.padding,
-            }}
-          >
-            {contractContent.map((dataRow, i) => (
-              <ContractRow key={i} style={dataRow.style}>
-                {dataRow.rowItems.map((dataItem, i) => {
-                  if (dataItem.type === "qrclient") {
-                    return (
-                      <ContractItemQR
-                        name="qrcodeclient"
-                        key={i}
-                        style={{ ...dataItem.style, hidden: dataItem.hidden }}
-                      />
-                    );
-                  }
-                  if (dataItem.type === "qrorg") {
-                    return (
-                      <ContractItemQR
-                        name="qrcodeorg"
-                        key={i}
-                        style={{ ...dataItem.style, hidden: dataItem.hidden }}
-                      />
-                    );
-                  }
-                  if (dataItem.type === "table") {
-                    if (dataItem?.table?.length === 0) {
-                      return "";
-                    }
-                    return (
-                      <ContractItemTable
-                        key={i}
-                        style={{ ...dataItem.style, hidden: dataItem.hidden }}
-                      >
-                        <thead>
-                          <tr>
-                            {dataItem.table[0].map((headerItem, i) => (
-                              <ContractItemTableHeaderDigit
-                                key={i}
-                                style={{
-                                  ...headerItem.style,
-                                  pageFont: actTemplate.font,
-                                  tableBorder: dataItem?.style?.tableBorder,
-                                }}
-                              >
-                                {headerItem.value}
-                              </ContractItemTableHeaderDigit>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {dataItem.table
-                            .slice(1, dataItem.length)
-                            .map((row, i) => (
-                              <tr key={i}>
-                                {row.map((rowItem, i) => (
-                                  <ContractItemTableBodyDigit
-                                    style={{
-                                      ...rowItem.style,
-                                      pageFont: actTemplate.font,
-                                      tableBorder: dataItem?.style?.tableBorder,
-                                    }}
-                                    key={i}
-                                  >
-                                    {rowItem.value}
-                                  </ContractItemTableBodyDigit>
-                                ))}
-                              </tr>
-                            ))}
-                        </tbody>
-                      </ContractItemTable>
-                    );
-                  }
-                  return (
-                    <ContractItem
-                      key={i}
-                      style={{
-                        ...dataItem.style,
-                        pageFont: actTemplate.font,
-                        hidden: dataItem.hidden,
-                      }}
-                    >
-                      {dataItem.text}
-                    </ContractItem>
-                  );
-                })}
-              </ContractRow>
-            ))}
-          </ContractPage>
+          <iframe
+            src={`https://docs.google.com/gviewer?url=${doc}&embedded=true`}
+            style={{ width: "100%", height: "800px" }}
+          ></iframe>
+          <a href={doc}>Перейти по ссылке</a>
         </ContractContainer>
       ) : (
         <div className="Center">

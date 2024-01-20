@@ -246,9 +246,10 @@ function OrderDetails() {
 
   const renttime = useMemo(() => {
     if (!orderInfo.notFound) {
-      let renttime = 0;
-      orderInfo.extensions.forEach((item) => (renttime += item.renttime));
-      return renttime;
+      return moment(orderInfo.planned_date).diff(
+        moment(orderInfo.started_date),
+        "days"
+      );
     }
     return 0;
   }, [orderInfo]);
@@ -258,9 +259,10 @@ function OrderDetails() {
       const delay = moment(
         orderInfo.finished_date ? orderInfo.finished_date : new Date()
       ).diff(
-        moment(orderInfo.started_date)
-          .add(renttime, TARIFF_MOMENT_KEYS[orderInfo.tariff])
-          .add(orderInfo.forgive_lateness_ms, "milliseconds"),
+        moment(orderInfo.planned_date).add(
+          orderInfo.forgive_lateness_ms,
+          "milliseconds"
+        ),
         TARIFF_MOMENT_KEYS[orderInfo.tariff]
       );
       if (delay > 0) {
@@ -268,25 +270,7 @@ function OrderDetails() {
       } else return 0;
     }
     return 0;
-  }, [orderInfo, renttime]);
-
-  const factDelay = useMemo(() => {
-    if (!orderInfo.notFound) {
-      const delay = moment(
-        orderInfo.finished_date ? orderInfo.finished_date : new Date()
-      ).diff(
-        moment(orderInfo.started_date).add(
-          renttime,
-          TARIFF_MOMENT_KEYS[orderInfo.tariff]
-        ),
-        TARIFF_MOMENT_KEYS[orderInfo.tariff]
-      );
-      if (delay > 0) {
-        return delay;
-      } else return 0;
-    }
-    return 0;
-  }, [orderInfo, renttime]);
+  }, [orderInfo]);
 
   const paidSum = useMemo(() => {
     if (!orderInfo.notFound) {
@@ -323,8 +307,9 @@ function OrderDetails() {
         totalDeliveryCost += parseInt(item.delivery_price_for_customer);
       }
       total =
-        (renttimeTillFinished ? renttimeTillFinished : renttime + delay) *
+        (renttimeTillFinished ? renttimeTillFinished : renttime + delay + 1) *
         total;
+
       return {
         total,
         discountSum,
@@ -392,8 +377,8 @@ function OrderDetails() {
       },
       {
         value: `${moment(orderInfo.planned_date).format("DD.MM.yyyy HH:mm")} ${
-          factDelay >= 0
-            ? `(Просрочка: ${factDelay} ${
+          delay >= 0
+            ? `(Просрочка: ${delay} ${
                 TARIFF_UNITS_2[orderInfo.tariff]
               } + 1 неполных ${TARIFF_UNITS_2[orderInfo.tariff]})`
             : ""
@@ -541,7 +526,7 @@ function OrderDetails() {
         type: "rowValue",
       },
     ],
-    [orderInfo, currency, factSum, renttime, paidSum, factDelay]
+    [orderInfo, currency, factSum, renttime, paidSum, delay]
   );
 
   const getOrderDetailsCallback = useCallback(() => {

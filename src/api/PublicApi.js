@@ -35,6 +35,33 @@ export const getContract = async (
     });
 };
 
+export const getDocx = async (
+  setLoading,
+  organization_id,
+  order_id,
+  contract_code,
+  setDoc,
+  setOrderData
+) => {
+  setLoading(true);
+  axiosNT
+    .get(`/api/public/getdocx`, {
+      params: { organization_id, order_id, contract_code },
+    })
+    .then(({ data }) => {
+      setDoc(data.doc);
+      setOrderData(data.orderData);
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      setDoc();
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
 export const sendCode = async (
   setLoading,
   organization_id,
