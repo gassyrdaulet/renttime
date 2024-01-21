@@ -9,6 +9,10 @@ import { getMethods } from "../api/OrganizationApi";
 import { newPayment } from "../api/OrderApi";
 import moment from "moment";
 import DateTimePicker from "./DateTimePicker";
+import InfoRows from "./InfoRows";
+import config from "../config/config.json";
+
+const { CURRENCIES } = config;
 
 const CreatePaymentFormWrapper = styled.form`
   display: flex;
@@ -56,6 +60,8 @@ function CreatePaymentForm({
   createPaymentLoading,
   setCreatePaymentLoading,
   orderId,
+  paymentSum = 0,
+  totalSum = 0,
   next,
 }) {
   const [inputs, setInputs] = useState([
@@ -69,7 +75,7 @@ function CreatePaymentForm({
       unsigned: true,
     },
   ]);
-  const { token } = useAuth();
+  const { token, currency } = useAuth();
   const [paymentMethods, setPaymentMethods] = useState([
     { id: 0, name: "Загрузка..." },
   ]);
@@ -106,11 +112,30 @@ function CreatePaymentForm({
     });
   }, []);
 
+  const infoRows = useMemo(
+    () => [
+      { value: "Информация об оплате", type: "partTitle" },
+      { value: "Необходимая оплата", type: "rowTitle" },
+      { value: `${totalSum} ${CURRENCIES[currency]}`, type: "rowValue" },
+      { value: "Принятая оплата", type: "rowTitle" },
+      { value: `${paymentSum} ${CURRENCIES[currency]}`, type: "rowValue" },
+      { value: "Осталось к оплате", type: "rowTitle" },
+      {
+        value: `${totalSum - paymentSum > 0 ? totalSum - paymentSum : 0} ${
+          CURRENCIES[currency]
+        }`,
+        type: "rowValue",
+      },
+    ],
+    [paymentSum, totalSum, currency]
+  );
+
   return (
     <CreatePaymentFormWrapper>
       <CreatePaymentFormContainer>
         <CreatePaymentInputContainers>
           <InputsContainer>
+            <InfoRows margin="0 0 15px 0" infoRows={infoRows} />
             {inputs.map((item) => (
               <MyInput
                 onChange={(e) => {

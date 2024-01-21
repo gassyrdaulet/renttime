@@ -158,6 +158,25 @@ export const createDebt = async (setLoading, token, body, next) => {
     });
 };
 
+export const createDebtPayment = async (setLoading, token, body, next) => {
+  setLoading(true);
+  axiosNT
+    .post(`/api/clients/newdebtpayment`, body, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(() => {
+      toast.success("Оплата принята успешно", { draggable: false });
+      next();
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
 export const closeDebt = async (setLoading, token, params, next) => {
   setLoading(true);
   axiosNT

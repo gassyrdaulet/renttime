@@ -47,6 +47,7 @@ import CreateNewViolationForm from "../components/CreateViolationForm";
 const {
   TARIFF_MOMENT_KEYS,
   TARIFF_UNITS_2,
+  TARIFF_UNITS_3,
   TARIFFS,
   PAPER_AUTHORITY,
   GENDERS,
@@ -259,6 +260,38 @@ function OrderDetails() {
     return 0;
   }, [orderInfo]);
 
+  const delayBiggestUnit = useMemo(() => {
+    if (!orderInfo.notFound) {
+      const delays = [
+        { key: "years", delay: 0 },
+        { key: "months", delay: 0 },
+        { key: "days", delay: 0 },
+        { key: "hours", delay: 0 },
+        { key: "minutes", delay: 0 },
+        { key: "seconds", delay: 0 },
+      ];
+      delays.forEach((item) => {
+        const delay = moment(
+          orderInfo.finished_date ? orderInfo.finished_date : new Date()
+        ).diff(
+          moment(orderInfo.planned_date).add(
+            orderInfo.forgive_lateness_ms,
+            "milliseconds"
+          ),
+          item.key
+        );
+        item.delay = delay;
+      });
+      for (let item of delays) {
+        if (item.delay > 0) {
+          return item;
+        }
+      }
+      return 0;
+    }
+    return 0;
+  }, [orderInfo]);
+
   const delay = useMemo(() => {
     if (!orderInfo.notFound) {
       const delay = moment(
@@ -270,9 +303,17 @@ function OrderDetails() {
         ),
         TARIFF_MOMENT_KEYS[orderInfo.tariff]
       );
-      if (delay > 0) {
+      const delaySeconds = moment().diff(
+        moment(orderInfo.planned_date).add(
+          orderInfo.forgive_lateness_ms,
+          "milliseconds"
+        ),
+        "seconds"
+      );
+      if (delaySeconds > 0) {
         return delay + 1;
-      } else return 0;
+      }
+      return delay;
     }
     return 0;
   }, [orderInfo]);
@@ -312,9 +353,8 @@ function OrderDetails() {
         totalDeliveryCost += parseInt(item.delivery_price_for_customer);
       }
       total =
-        (renttimeTillFinished ? renttimeTillFinished : renttime + delay + 1) *
+        (renttimeTillFinished ? renttimeTillFinished : renttime + delay) *
         total;
-
       return {
         total,
         discountSum,
@@ -382,10 +422,10 @@ function OrderDetails() {
       },
       {
         value: `${moment(orderInfo.planned_date).format("DD.MM.yyyy HH:mm")} ${
-          delay >= 0
-            ? `(Просрочка: ${delay} ${
-                TARIFF_UNITS_2[orderInfo.tariff]
-              } + 1 неполных ${TARIFF_UNITS_2[orderInfo.tariff]})`
+          delay > 0
+            ? `(Просрочка: ${delayBiggestUnit.delay} ${
+                TARIFF_UNITS_3[delayBiggestUnit.key]
+              })`
             : ""
         }`,
         type: "rowValue",
@@ -499,17 +539,15 @@ function OrderDetails() {
         value: orderInfo.clientInfo?.address,
         type: "rowValue",
       },
-      { value: "Пол и возвраст", type: "rowTitle" },
+      { value: "Пол и возраст", type: "rowTitle" },
       {
-        value: `${GENDERS[orderInfo.clientInfo?.gender]} ${
+        value: `${GENDERS[orderInfo.clientInfo?.gender]}${
           isNaN(
-            moment().diff(
-              moment(
-                orderInfo.clientInfo?.paper_person_id?.slice(0, 6),
-                "YYMMDD"
-              ),
-              "years"
-            )
+            moment(
+              orderInfo.clientInfo?.paper_person_id?.slice(0, 6),
+              "YYMMDD"
+            ),
+            "years"
           )
             ? ""
             : ", " +
@@ -531,7 +569,7 @@ function OrderDetails() {
         type: "rowValue",
       },
     ],
-    [orderInfo, currency, factSum, renttime, paidSum, delay]
+    [orderInfo, currency, factSum, renttime, paidSum, delay, delayBiggestUnit]
   );
 
   const getOrderDetailsCallback = useCallback(() => {
@@ -926,6 +964,8 @@ function OrderDetails() {
         onlyByClose={true}
       >
         <CreatePaymentForm
+          totalSum={factSum.sum}
+          paymentSum={paidSum.total}
           createPaymentLoading={editLoading}
           setCreatePaymentLoading={setEditloading}
           orderId={params.id}

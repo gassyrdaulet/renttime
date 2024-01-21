@@ -163,7 +163,6 @@ function WorkshiftDetails() {
         title: `${moment(discount.date).format("DD.MM.YYYY HH:mm")}`,
         values: [
           `Сумма: ${discount.amount} ${CURRENCIES[currency]}`,
-          `Способ оплаты: ${discount.payment_method}`,
           `ID заказа: ${discount.order_id}`,
           `Причина: ${discount?.reason ? discount.reason : "-"}`,
         ],

@@ -10,15 +10,17 @@ import { BiSolidChevronLeft } from "react-icons/bi";
 import styled from "styled-components";
 import moment from "moment";
 import InfoRows from "../components/InfoRows";
-import { closeDebt, deleteClient, getClientByIdKZ } from "../api/ClientApi";
+import { deleteClient, getClientByIdKZ } from "../api/ClientApi";
 import config from "../config/config.json";
 import HistoryInfoRows from "../components/HistoryInfoRows";
 import Modal from "../components/Modal";
 import EditClientForm from "../components/EditClientForm";
 import CreateDebtForm from "../components/CreateDebtForm";
 import useConfirm from "../hooks/useConfirm";
-import { getMethods } from "../api/OrganizationApi";
-import Select from "../components/Select";
+import CreateDebtPaymentForm from "../components/CreateDebtPaymentForm";
+// import Select from "../components/Select"
+// import { getMethods } from "../api/OrganizationApi";
+// import {closeDebt} from "../api/ClientApi"
 
 const { GENDERS, PAPER_AUTHORITY, CURRENCIES, SPECIE_STATUSES } = config;
 
@@ -41,30 +43,31 @@ function ClientDetails() {
   const [editLoading, setEditLoading] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [addDebtModal, setAddDebtModal] = useState(false);
+  const [addDebtPaymentModal, setAddDebtPaymentModal] = useState(false);
   const [data, setData] = useState({});
   const { token, currency } = useAuth();
   const { confirm } = useConfirm();
   const params = useParams();
   const navigate = useNavigate();
-  const [paymentMethod, setPaymentMethod] = useState();
-  const [paymentMethods, setPaymentMethods] = useState([
-    { id: 0, name: "Загрузка..." },
-  ]);
+  // const [paymentMethod, setPaymentMethod] = useState();
+  // const [paymentMethods, setPaymentMethods] = useState([
+  //   { id: 0, name: "Загрузка..." },
+  // ]);
 
-  useEffect(() => {
-    getMethods(setEditLoading, token, setPaymentMethods);
-  }, [token]);
+  // useEffect(() => {
+  //   getMethods(setEditLoading, token, setPaymentMethods);
+  // }, [token]);
 
-  const options = useMemo(() => {
-    const result = paymentMethods.map((item) => ({
-      id: item.id,
-      name: item.name + (item.comission ? ` (${item.comission}%)` : ""),
-    }));
-    if (result.length !== 0) {
-      setPaymentMethod(result[0].id);
-    }
-    return result;
-  }, [paymentMethods]);
+  // const options = useMemo(() => {
+  //   const result = paymentMethods.map((item) => ({
+  //     id: item.id,
+  //     name: item.name + (item.comission ? ` (${item.comission}%)` : ""),
+  //   }));
+  //   if (result.length !== 0) {
+  //     setPaymentMethod(result[0].id);
+  //   }
+  //   return result;
+  // }, [paymentMethods]);
 
   const credButtons = [
     {
@@ -79,6 +82,13 @@ function ClientDetails() {
       title: "Добавить долг",
       icon: <FaMoneyBill color="#0F9D58" size={20} />,
       onClick: () => setAddDebtModal(true),
+      disabled: isLoading,
+    },
+    {
+      id: 3,
+      title: "Принять оплату долга",
+      icon: <FaMoneyBill color="#0F9D58" size={20} />,
+      onClick: () => setAddDebtPaymentModal(true),
       disabled: isLoading,
     },
     {
@@ -156,7 +166,7 @@ function ClientDetails() {
       },
       { value: "Пол и возраст", type: "rowTitle" },
       {
-        value: `${GENDERS[data?.gender]} ${
+        value: `${GENDERS[data?.gender]}${
           isNaN(
             moment().diff(
               moment(data.paper_person_id?.slice(0, 6), "YYMMDD"),
@@ -208,52 +218,52 @@ function ClientDetails() {
           `Сумма: ${debt.amount} ${CURRENCIES[currency]}`,
           `Комментарий: ${debt.comment ? debt.comment : "-"}`,
           `Заказ: ${debt.order_id ? debt.order_id : "-"}`,
-          `Закрыт: ${debt.closed ? "ДА" : "НЕТ"}`,
+          // `Закрыт: ${debt.closed ? "ДА" : "НЕТ"}`,
         ],
-        buttons: debt.closed
-          ? []
-          : [
-              {
-                text: "Закрыть",
-                onClick: async () => {
-                  if (
-                    await confirm(
-                      <div>
-                        <p>
-                          Вы уверены что хотите закрыть этот долг? ID:
-                          {debt.id}
-                        </p>
-                        <Select
-                          label="Способ оплаты"
-                          value={paymentMethod}
-                          setValue={setPaymentMethod}
-                          loading={editLoading}
-                          defaultOptions={[]}
-                          options={options}
-                        />
-                      </div>
-                    )
-                  ) {
-                    closeDebt(
-                      setIsLoading,
-                      token,
-                      { debt_id: debt.id, payment_method_id: paymentMethod },
-                      () => fetchData()
-                    );
-                  }
-                },
-              },
-            ],
+        // buttons: debt.closed
+        //   ? []
+        //   : [
+        //       {
+        //         text: "Закрыть",
+        //         onClick: async () => {
+        //           if (
+        //             await confirm(
+        //               <div>
+        //                 <p>
+        //                   Вы уверены что хотите закрыть этот долг? ID:
+        //                   {debt.id}
+        //                 </p>
+        //                 <Select
+        //                   label="Способ оплаты"
+        //                   value={paymentMethod}
+        //                   setValue={setPaymentMethod}
+        //                   loading={editLoading}
+        //                   defaultOptions={[]}
+        //                   options={options}
+        //                 />
+        //               </div>
+        //             )
+        //           ) {
+        //             closeDebt(
+        //               setIsLoading,
+        //               token,
+        //               { debt_id: debt.id, payment_method_id: paymentMethod },
+        //               () => fetchData()
+        //             );
+        //           }
+        //         },
+        //       },
+        //     ],
       })),
     [
       data,
       currency,
-      confirm,
-      fetchData,
-      token,
-      options,
-      editLoading,
-      paymentMethod,
+      // token,
+      // options,
+      // editLoading,
+      // paymentMethod,
+      // confirm,
+      // fetchData,
     ]
   );
 
@@ -301,7 +311,7 @@ function ClientDetails() {
       <InfoTitle>Клиент: {params.id}</InfoTitle>
       <InfoRows infoRows={infoRows} />
       <HistoryInfoRows
-        title={`Долги: ${debtsSum} ${CURRENCIES[currency]}`}
+        title={`Баланс: ${debtsSum} ${CURRENCIES[currency]}`}
         historyRows={debts}
       />
       <HistoryInfoRows
@@ -336,6 +346,22 @@ function ClientDetails() {
           clientId={params.id}
           next={() => {
             setAddDebtModal(false);
+            fetchData();
+          }}
+        />
+      </Modal>
+      <Modal
+        modalVisible={addDebtPaymentModal}
+        setModalVisible={setAddDebtPaymentModal}
+        noEscape={editLoading}
+        title="Принять оплату долга"
+      >
+        <CreateDebtPaymentForm
+          isLoading={editLoading}
+          setIsLoading={setEditLoading}
+          clientId={params.id}
+          next={() => {
+            setAddDebtPaymentModal(false);
             fetchData();
           }}
         />

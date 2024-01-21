@@ -73,7 +73,7 @@ export default function App() {
         setToken(newToken);
       }
     };
-    const intervalId = setInterval(updateToken, 30 * 60 * 1000);
+    const intervalId = setInterval(updateToken, 10 * 60 * 1000);
     return () => clearInterval(intervalId);
   }, []);
 

@@ -1,5 +1,8 @@
 import styled from "styled-components";
 
+const InfoRowsWrapper = styled.div`
+  margin: ${(props) => props.style.containerMargin};
+`;
 const InfoPartTitle = styled.p`
   font-size: 18px;
   font-weight: 600;
@@ -17,9 +20,9 @@ const InfoRowValue = styled.div`
   font-size: 14px;
 `;
 
-function InfoRows({ infoRows = [] }) {
+function InfoRows({ infoRows = [], margin = "0" }) {
   return (
-    <div>
+    <InfoRowsWrapper style={{ containerMargin: margin }}>
       {infoRows.length === 0 && <p>Ничего не найдено</p>}
       {infoRows.map((item, i) => {
         const value = item.value
@@ -38,7 +41,7 @@ function InfoRows({ infoRows = [] }) {
         }
         return "";
       })}
-    </div>
+    </InfoRowsWrapper>
   );
 }
 

@@ -77,9 +77,17 @@ function Order({ orderItem, onClick }) {
       ),
       TARIFF_MOMENT_KEYS[orderItem.tariff]
     );
-    if (delay > 0) {
+    const delaySeconds = moment().diff(
+      moment(orderItem.planned_date).add(
+        orderItem.forgive_lateness_ms,
+        "milliseconds"
+      ),
+      "seconds"
+    );
+    if (delaySeconds > 0) {
       return delay + 1;
-    } else return 0;
+    }
+    return delay;
   }, [orderItem]);
 
   const totals = useMemo(() => {
@@ -105,8 +113,7 @@ function Order({ orderItem, onClick }) {
       totalDeliveryCost += parseInt(item.delivery_price_for_customer);
     }
     total =
-      (renttimeTillFinished ? renttimeTillFinished : renttime + delay + 1) *
-        total +
+      (renttimeTillFinished ? renttimeTillFinished : renttime + delay) * total +
       totalDeliveryCost;
     const totalWithDiscount = total - discountSum;
     return {

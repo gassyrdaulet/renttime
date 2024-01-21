@@ -84,8 +84,8 @@ function InputsLayout({
   width = "80vw",
   maxHeight = "60vh",
   maxWidth = "800px",
-  disabled,
-  loading,
+  disabled = false,
+  loading = false,
 }) {
   const [inputsData, setInputsData] = useState(inputs);
 

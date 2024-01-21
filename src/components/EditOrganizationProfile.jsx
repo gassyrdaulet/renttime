@@ -132,14 +132,14 @@ function EditOrganizationProfile() {
               label: "ИИК *",
             },
           ],
-          [
-            {
-              id: "cancel_time_ms",
-              type: "int",
-              value: data.cancel_time_ms,
-              label: "Время для возврата оборудования (миллисекунды) *",
-            },
-          ],
+          // [
+          //   {
+          //     id: "cancel_time_ms",
+          //     type: "int",
+          //     value: data.cancel_time_ms,
+          //     label: "Время для возврата оборудования (миллисекунды) *",
+          //   },
+          // ],
         ],
       ],
       [
