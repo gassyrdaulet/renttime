@@ -237,7 +237,10 @@ function OrderDetails() {
   }, [orderInfo]);
 
   const renttimeTillFinished = useMemo(() => {
-    if (!orderInfo.notFound || orderInfo.finished_date) {
+    if (orderInfo.notFound) {
+      return 0;
+    }
+    if (orderInfo.finished_date) {
       const renttime = moment(orderInfo.finished_date).diff(
         moment(orderInfo.started_date).add(
           orderInfo.forgive_lateness_ms,
@@ -313,7 +316,7 @@ function OrderDetails() {
       if (delaySeconds > 0) {
         return delay + 1;
       }
-      return delay;
+      return 0;
     }
     return 0;
   }, [orderInfo]);
@@ -352,6 +355,7 @@ function OrderDetails() {
         if (item.cancelled) continue;
         totalDeliveryCost += parseInt(item.delivery_price_for_customer);
       }
+      console.log(renttimeTillFinished, renttime, delay, total);
       total =
         (renttimeTillFinished ? renttimeTillFinished : renttime + delay) *
         total;

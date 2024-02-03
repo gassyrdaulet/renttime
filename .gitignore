@@ -6,6 +6,7 @@
 /build
 .pnp.js
 config.json
+other.txt
 firebase.js
 # testing
 /coverage

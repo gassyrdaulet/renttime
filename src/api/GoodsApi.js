@@ -217,7 +217,8 @@ export const getAllSpecies = async (
   setSpecies,
   params,
   setTotalCount,
-  setFilteredTotalCount
+  setFilteredTotalCount,
+  setTotalSum
 ) => {
   setLoading(true);
   axiosNT
@@ -228,6 +229,7 @@ export const getAllSpecies = async (
     .then(({ data }) => {
       setSpecies(data.species);
       setTotalCount(data.totalCount);
+      setTotalSum(data.totalCompensationSum);
       setFilteredTotalCount(data.filteredTotalCount);
     })
     .catch((e) => {
@@ -380,6 +382,32 @@ export const getAllGroups = async (setLoading, token, setGroups) => {
     })
     .then(({ data }) => {
       setGroups(data);
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+export const getSpeciesXLSX = async (setLoading, token) => {
+  setLoading(true);
+  axiosNT
+    .get(`/api/goods/getspeciesxlsx`, {
+      responseType: "blob",
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then((res) => {
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "inventory.xlsx"); // Установка имени файла для скачивания
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
     })
     .catch((e) => {
       const errMsg = e?.response?.data?.message;

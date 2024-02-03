@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import useAuth from "../hooks/useAuth";
-import { getAllSpecies } from "../api/GoodsApi";
+import { getAllSpecies, getSpeciesXLSX } from "../api/GoodsApi";
 import ContainerLayout from "../components/ContainerLayout";
 import CredButtons from "../components/CredButtons";
 import ControlPanelButtons from "../components/ControlPanelButtons";
@@ -15,8 +15,10 @@ import styled from "styled-components";
 import config from "../config/config.json";
 import moment from "moment";
 import Groups from "../components/Groups";
+import { FaListAlt } from "react-icons/fa";
+import InfoRows from "../components/InfoRows";
 
-const { SPECIE_STATUSES } = config;
+const { SPECIE_STATUSES, CURRENCIES } = config;
 
 const MainContent = styled.div`
   display: flex;
@@ -78,12 +80,14 @@ const FilterSortModalInputContainer = styled.div`
 
 function Species() {
   const [speciesLoading, setSpeciesLoading] = useState(true);
+  const [xlsxLoading, setXlsxLoading] = useState(false);
   const [species, setSpecies] = useState([]);
   const [filterSortModal, setFilterSortModal] = useState(false);
   const [searchInputText, setSearchInputText] = useState("");
   const [selectedGroup, setSelectedGroup] = useState("all");
   const [confirmedSearchText, setConfirmedSearchText] = useState("");
   const [totalCount, setTotalCount] = useState(0);
+  const [totalSum, setTotalSum] = useState(0);
   const [filteredTotalCount, setFilteredTotalCount] = useState(0);
   const [page, setPage] = useState(1);
   const [sortOrder, setSortOrder] = useState(
@@ -101,20 +105,38 @@ function Species() {
       ? localStorage.getItem("sortSpeciesBy")
       : "id"
   );
-  const { token } = useAuth();
+  const { token, currency } = useAuth();
   const navigate = useNavigate();
   const params = useParams();
 
-  const credButtons = [
-    // {
-    //   id: 0,
-    //   title: "Новая карточка",
-    //   icon: <FaPlusSquare color="#0F9D58" size={20} />,
-    //   onClick: () => {
-    //     setCreateGoodModal(true);
-    //   },
-    // },
-  ];
+  const totalInfo = useMemo(
+    () => [
+      {
+        type: "partTitle",
+        value: "Общая сумма оборудования",
+      },
+      {
+        type: "rowValue",
+        value: `${totalSum} ${CURRENCIES[currency]}`,
+      },
+    ],
+    [totalSum, currency]
+  );
+
+  const credButtons = useMemo(
+    () => [
+      {
+        id: 0,
+        title: "Скачать список XLSX",
+        icon: <FaListAlt color="green" size={20} />,
+        onClick: () => {
+          getSpeciesXLSX(setXlsxLoading, token);
+        },
+        disabled: xlsxLoading,
+      },
+    ],
+    [token, xlsxLoading]
+  );
 
   const controlPanelButtons = useMemo(
     () => [
@@ -191,7 +213,8 @@ function Species() {
       setSpecies,
       selectParams,
       setTotalCount,
-      setFilteredTotalCount
+      setFilteredTotalCount,
+      setTotalSum
     );
   }, [
     selectedGroup,
@@ -325,6 +348,7 @@ function Species() {
   const leftContent = (
     <div>
       <CredButtons credButtons={credButtons} />
+      <InfoRows infoRows={totalInfo} margin="0 0 20px 0" />
       <Groups
         defaultOptions={groups}
         switchLoading={speciesLoading}
