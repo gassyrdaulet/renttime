@@ -84,8 +84,13 @@ function Order({ orderItem, onClick }) {
       ),
       "seconds"
     );
-    if (delaySeconds > 0) {
-      return delay + 1;
+    if (delay === 0) {
+      if (delaySeconds > 0) {
+        return delay + 1;
+      }
+    }
+    if (delay < 0) {
+      return 0;
     }
     return delay;
   }, [orderItem]);

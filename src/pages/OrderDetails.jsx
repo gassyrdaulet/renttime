@@ -313,10 +313,15 @@ function OrderDetails() {
         ),
         "seconds"
       );
-      if (delaySeconds > 0) {
-        return delay + 1;
+      if (delay === 0) {
+        if (delaySeconds > 0) {
+          return delay + 1;
+        }
       }
-      return 0;
+      if (delay < 0) {
+        return 0;
+      }
+      return delay;
     }
     return 0;
   }, [orderInfo]);
@@ -355,7 +360,6 @@ function OrderDetails() {
         if (item.cancelled) continue;
         totalDeliveryCost += parseInt(item.delivery_price_for_customer);
       }
-      console.log(renttimeTillFinished, renttime, delay, total);
       total =
         (renttimeTillFinished ? renttimeTillFinished : renttime + delay) *
         total;

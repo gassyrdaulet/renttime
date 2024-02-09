@@ -544,7 +544,7 @@ function GoodPicker({ tariff, pickedGoods, setPickedGoods, disabled }) {
               <p>Ничего не найдено</p>
             </LoadingWrapper>
           )}
-          {!loading && showSpecies && (
+          {!loading && showSpecies && fetchedSpecies && selectedGood && (
             <Species>
               {fetchedSpecies.map((item) => (
                 <SpecieItem
