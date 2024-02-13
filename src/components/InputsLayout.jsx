@@ -197,6 +197,7 @@ function InputsLayout({
         <Select
           options={item.options}
           setValue={(v) => {
+            item.onChange(v);
             handleInputChange(item.id, v);
           }}
           label={item.label}

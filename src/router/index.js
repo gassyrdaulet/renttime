@@ -17,6 +17,7 @@ import ClientDetails from "../pages/ClientDetails";
 import Species from "../pages/Species";
 import Workshifts from "../pages/Workshifts";
 import WorkshiftDetails from "../pages/WorkshiftDetails";
+import ABC from "../pages/ABC";
 
 export const userRoutes = [
   { path: "/main", element: <Main></Main> },
@@ -30,6 +31,10 @@ export const userRoutes = [
   { path: "/orders/:group/:page", element: <Orders></Orders> },
   { path: "/orders/:group/:page/:id", element: <OrderDetails></OrderDetails> },
   { path: "/deliveries/:group/:page", element: <Deliveries></Deliveries> },
+  {
+    path: "/deliveries/:group/:page/:id",
+    element: <DeliveryDetails></DeliveryDetails>,
+  },
   { path: "/workshifts/:page", element: <Workshifts></Workshifts> },
   {
     path: "/workshifts/:page/:id",
@@ -38,10 +43,7 @@ export const userRoutes = [
   { path: "/settings/:group", element: <Settings></Settings> },
   { path: "/clients/:page", element: <Clients></Clients> },
   { path: "/clients/:page/:id", element: <ClientDetails></ClientDetails> },
-  {
-    path: "/deliveries/:group/:page/:id",
-    element: <DeliveryDetails></DeliveryDetails>,
-  },
+  { path: "/summaries/ABC", element: <ABC></ABC> },
   { path: "/", element: <Navigate to="/main"></Navigate> },
   { path: "/auth", element: <Navigate to="/"></Navigate> },
   { path: "/*", element: <Navigate to="/"></Navigate> },

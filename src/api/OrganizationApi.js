@@ -429,3 +429,21 @@ export const controlWorkshift = async (
       setLoading(false);
     });
 };
+
+export const getAbcData = async (setLoading, headers, token, setData) => {
+  setLoading(true);
+  axiosNT
+    .get(`/api/organization/summaryabc`, {
+      headers: { ...headers, Authorization: "Bearer " + token },
+    })
+    .then(({ data }) => {
+      setData(data);
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};

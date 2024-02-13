@@ -24,7 +24,13 @@ const Headers = styled.thead`
 `;
 const Body = styled.tbody``;
 const TableRow = styled.tr`
-  background-color: ${(props) => (props.style?.rowMarked ? "#58cf99" : "")};
+  background-color: ${(props) => {
+    return props.style.tableRowBG
+      ? props.style.tableRowBG
+      : props.style?.rowMarked
+      ? "#58cf99"
+      : "";
+  }};
   &:hover {
     background-color: ${(props) =>
       props.style?.rowMarked ? "#58cf99" : "rgb(235, 235, 235)"};
@@ -159,6 +165,7 @@ function TableLayout({
           <tr>
             {marking && (
               <TableHeaderColumn
+                key="marking"
                 style={{
                   fixedJustWidth: "50px",
                   fixedMaxWidth: "50px",
@@ -198,10 +205,14 @@ function TableLayout({
           {data.map((dataItem) => (
             <TableRow
               key={dataItem.id}
-              style={{ rowMarked: marked?.[dataItem.id] }}
+              style={{
+                rowMarked: marked?.[dataItem.id],
+                tableRowBG: dataItem.backGroundColor,
+              }}
             >
               {marking && (
                 <TableColumn
+                  key="marking"
                   style={{
                     dataAlign: "center",
                     vertical: "center",

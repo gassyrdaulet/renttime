@@ -28,9 +28,12 @@ function DatePicker({
   return (
     <DatePickerWrapper style={{ containerMargin: margin }}>
       <Input
+        borderColor={!moment(date).isValid() ? "red" : "gray"}
         label={label}
         value={date}
-        onChange={(e) => setDate(e.target.value)}
+        onChange={(e) => {
+          setDate(e.target.value);
+        }}
         type="date"
         max="9999-12-31"
         disabled={disabled}

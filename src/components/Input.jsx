@@ -10,8 +10,9 @@ const InputField = styled.input`
   background-color: white;
   padding: 10px;
   width: 100%;
-  border: 1px solid gray;
+  border: 1px solid;
   border-radius: 5px;
+  border-color: ${(props) => props.style.inputFieldBorderColor};
   font-size: ${(props) => props.style?.inputFontSize}px;
   text-align: ${(props) => props.style?.align};
   outline: none;
@@ -40,6 +41,7 @@ const Input = ({
   margin = "0 0 10px 0",
   onChange = () => {},
   value = "",
+  borderColor = "gray",
   label,
   type,
   disabled,
@@ -55,7 +57,11 @@ const Input = ({
       {label && <LabelText>{label}</LabelText>}
       <InputField
         spellCheck={spellCheck}
-        style={{ inputFontSize: fontSize, align: textAlign }}
+        style={{
+          inputFontSize: fontSize,
+          align: textAlign,
+          inputFieldBorderColor: borderColor,
+        }}
         disabled={disabled}
         type={type}
         ref={inputRef}
