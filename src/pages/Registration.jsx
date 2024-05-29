@@ -95,8 +95,8 @@ function Registration() {
               inputs.forEach((item) => {
                 data[item.id] = item.value;
               });
-              data.email = email;
-              data.password = password.toLowerCase();
+              data.email = email.toLowerCase();
+              data.password = password;
               if (!data.father_name) {
                 delete data.father_name;
               }
