@@ -18,6 +18,7 @@ import Species from "../pages/Species";
 import Workshifts from "../pages/Workshifts";
 import WorkshiftDetails from "../pages/WorkshiftDetails";
 import ABC from "../pages/ABC";
+import IncomeSummary from "../pages/IncomeSummary";
 
 export const userRoutes = [
   { path: "/main", element: <Main></Main> },
@@ -44,6 +45,7 @@ export const userRoutes = [
   { path: "/clients/:page", element: <Clients></Clients> },
   { path: "/clients/:page/:id", element: <ClientDetails></ClientDetails> },
   { path: "/summaries/ABC", element: <ABC></ABC> },
+  { path: "/summaries/income", element: <IncomeSummary></IncomeSummary> },
   { path: "/", element: <Navigate to="/main"></Navigate> },
   { path: "/auth", element: <Navigate to="/"></Navigate> },
   { path: "/*", element: <Navigate to="/"></Navigate> },

@@ -58,6 +58,7 @@ function CreateDebtForm({ isLoading, setIsLoading, clientId, next }) {
           if (comment) {
             data.comment = comment;
           }
+          data.amount = -data.amount;
           data.client_id = clientId;
           createDebt(setIsLoading, token, data, next);
         },

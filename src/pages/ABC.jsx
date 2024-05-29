@@ -34,7 +34,7 @@ function ABC() {
       moment().startOf("month").toDate().toISOString(),
       moment().toDate().toISOString()
     );
-  }, [token, fetch]);
+  }, [fetch]);
 
   const totalOrdersSum = useMemo(() => {
     return data ? data.reduce((sum, item) => sum + item.count, 0) : 0;

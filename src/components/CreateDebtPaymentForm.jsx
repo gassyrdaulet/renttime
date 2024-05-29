@@ -48,7 +48,6 @@ function CreateDebtPaymentForm({ isLoading, setIsLoading, clientId, next }) {
         id: 1,
         text: "Принять",
         onClick: (data) => {
-          data.amount = -data.amount;
           data.client_id = clientId;
           createDebt(setIsLoading, token, data, next);
         },

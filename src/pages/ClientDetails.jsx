@@ -1,7 +1,13 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import useAuth from "../hooks/useAuth";
 import ContainerLayout from "../components/ContainerLayout";
-import { FaPencilAlt, FaTrashAlt, FaMoneyBill } from "react-icons/fa";
+import {
+  FaPencilAlt,
+  FaTrashAlt,
+  FaMoneyBill,
+  FaArrowUp,
+  FaArrowDown,
+} from "react-icons/fa";
 import CredButtons from "../components/CredButtons";
 import Loading from "../components/Loading";
 import { useParams, useNavigate } from "react-router-dom";
@@ -86,8 +92,15 @@ function ClientDetails() {
     },
     {
       id: 3,
-      title: "Принять оплату долга",
-      icon: <FaMoneyBill color="#0F9D58" size={20} />,
+      title: "Списать деньги с баланса",
+      icon: <FaArrowUp color="#0F9D58" size={20} />,
+      onClick: () => setAddDebtPaymentModal(true),
+      disabled: isLoading,
+    },
+    {
+      id: 4,
+      title: "Добавить деньги на баланс",
+      icon: <FaArrowDown color="#0F9D58" size={20} />,
       onClick: () => setAddDebtPaymentModal(true),
       disabled: isLoading,
     },

@@ -213,7 +213,7 @@ function Clients() {
           fixedJustWidth: "100px",
           fixedMaxWidth: "100px",
         },
-        title: "Сумма долга",
+        title: "Баланс",
         dataStyle: { dataAlign: "center" },
         type: "text",
       },
