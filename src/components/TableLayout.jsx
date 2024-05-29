@@ -26,7 +26,7 @@ const Body = styled.tbody``;
 const TableRow = styled.tr`
   background-color: ${(props) => {
     return props.style?.tableRowBG
-      ? props.style.tableRowBG
+      ? props.style?.tableRowBG
       : props.style?.rowMarked
       ? "#58cf99"
       : "";
