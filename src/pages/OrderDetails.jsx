@@ -257,7 +257,7 @@ function OrderDetails() {
     if (!orderInfo.notFound) {
       return moment(orderInfo.planned_date).diff(
         moment(orderInfo.started_date),
-        "days"
+        TARIFF_MOMENT_KEYS[[orderInfo.tariff]]
       );
     }
     return 0;
