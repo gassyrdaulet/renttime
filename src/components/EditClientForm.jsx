@@ -41,7 +41,6 @@ function EditClientForm({
       return [];
     }
   }, []);
-
   const inputs = useMemo(() => {
     if (!clientInfo) {
       return [];

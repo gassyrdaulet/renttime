@@ -193,18 +193,21 @@ function InputsLayout({
           disabled={disabled}
         />
       ),
-      select: (item) => (
-        <Select
-          options={item.options}
-          setValue={(v) => {
-            item.onChange(v);
-            handleInputChange(item.id, v);
-          }}
-          label={item.label}
-          value={item.value}
-          disabled={disabled}
-        />
-      ),
+      select: (item) => {
+        item.onChange = item.inChange ? item.onChange : () => {};
+        return (
+          <Select
+            options={item.options}
+            setValue={(v) => {
+              item.onChange(v);
+              handleInputChange(item.id, v);
+            }}
+            label={item.label}
+            value={item.value}
+            disabled={disabled}
+          />
+        );
+      },
       datetime: (item) => (
         <DateTimePicker
           disabled={disabled}
