@@ -65,6 +65,7 @@ const Text = styled.p`
 const ButtonsContainer = styled.div`
   display: flex;
   width: 100%;
+  margin-top: 10px;
   margin-bottom: 10px;
   & > * {
     width: 100%;
@@ -130,6 +131,24 @@ function Contract() {
               В случае если вас не устраивают эти условия, вы можете покинуть
               эту страницу и договор не будет считаться действительным.
             </Text>
+            <Text>
+              Если договор не появляется, попробуйте{" "}
+              <span
+                style={{
+                  color: "blue",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                }}
+                onClick={() => {
+                  const prev = doc;
+                  setDoc(null);
+                  setDoc(prev);
+                }}
+              >
+                перезагрузить
+              </span>{" "}
+              страницу.
+            </Text>
             <ButtonsContainer>
               <MyButton
                 text="Скачать документ"
@@ -182,6 +201,16 @@ function Contract() {
                 ? orderData.finished_date
                 : "НЕТ"}
             </StatusWrapper>
+            <ButtonsContainer>
+              <MyButton
+                text="Подтвердить согласие"
+                onClick={() => {
+                  setConfirmContractModal(true);
+                }}
+                disabled={contractDataLoading || orderData.signed}
+                color={{ default: "#85c442", dark: "#7ab835" }}
+              />
+            </ButtonsContainer>
           </GrayWrapper>
         </CenterContainer>
       )}
@@ -194,6 +223,9 @@ function Contract() {
         </div>
       ) : doc ? (
         <ContractContainer>
+          <Text style={{ textAlign: "center", color: "#999999" }}>
+            Предпросмотр:{" "}
+          </Text>
           <iframe
             title="Document"
             width="100%"
@@ -206,23 +238,7 @@ function Contract() {
           <GrayWrapper>Договор не найден</GrayWrapper>
         </div>
       )}
-      <CenterContainer>
-        <MyButton
-          text="Подтвердить согласие"
-          onClick={() => {
-            // sendCode(
-            //   setConfirmLoading,
-            //   frozenParams.organization_id,
-            //   frozenParams.order_id,
-            //   frozenParams.contract_code
-            // );
-            setConfirmContractModal(true);
-          }}
-          disabled={contractDataLoading || orderData.signed}
-          color={{ default: "#85c442", dark: "#7ab835" }}
-          margin="0 0 10px 0"
-        />
-      </CenterContainer>
+
       <Modal
         setModalVisible={setConfirmContractModal}
         modalVisible={confirmContractModal}

@@ -3,7 +3,7 @@ import config from "../config/config.json";
 
 const { DOMEN, PRODUCTION, PORT } = config;
 
-const localIpAddress = "http://" + window.location.hostname;
+const localIpAddress = "http://192.168.0.104";
 
 export const finalIpAddress =
   (PRODUCTION ? DOMEN : localIpAddress) + ":" + PORT;

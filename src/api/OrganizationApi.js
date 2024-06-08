@@ -43,6 +43,24 @@ export const getMethods = async (
     });
 };
 
+export const getMainData = async (setLoading, token, setData) => {
+  setLoading(true);
+  axiosNT
+    .get(`/api/organization/maindata`, {
+      headers: { Authorization: "Bearer " + token },
+    })
+    .then(({ data }) => {
+      setData(data);
+    })
+    .catch((e) => {
+      const errMsg = e?.response?.data?.message;
+      toast.error(errMsg ? errMsg : "Unknown error", { draggable: false });
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
 export const newMethod = async (setLoading, token, data, next) => {
   setLoading(true);
   axiosNT

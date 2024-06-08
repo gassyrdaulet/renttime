@@ -4,11 +4,12 @@ function Logo({ onClick = () => {} }) {
   return (
     <div
       onClick={onClick}
-      title="RentTime - автоматизация арендного бизенса"
+      title="RentTime - автоматизация арендного бизнеса"
       className={cl.mainWrapper}
     >
       <p className={cl.firstWord}>Rent</p>
       <p className={cl.secondWord}>Time</p>
+      <p style={{ fontSize: 9 }}>Главная</p>
     </div>
   );
 }

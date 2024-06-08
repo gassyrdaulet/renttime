@@ -6,6 +6,7 @@
 /build
 .pnp.js
 config.json
+config_copy.json
 other.txt
 firebase.js
 # testing

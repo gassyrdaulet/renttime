@@ -1,6 +1,5 @@
 .mainWrapper {
   width: 50px;
-  height: 50px;
   display: flex;
   align-items: center;
   text-align: center;
@@ -10,6 +9,8 @@
   font-weight: 600;
   line-height: 100%;
   user-select: none;
+  height: 60px;
+  cursor: pointer;
 }
 .mainWrapper p {
   font-family: "Orbitron", sans-serif;
