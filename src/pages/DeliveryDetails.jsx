@@ -345,6 +345,7 @@ function DeliveryDetails() {
         onlyByClose={true}
       >
         <PayOffForm
+          setModal={setPayoffModal}
           isLoading={editLoading}
           setIsLoading={setEditloading}
           deliveries={[deliveryInfo]}
